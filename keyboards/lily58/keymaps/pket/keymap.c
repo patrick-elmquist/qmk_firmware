@@ -6,8 +6,8 @@
 #define SYM_D LT(_SYMBOL, KC_D)
 #define SFT_ENT RSFT_T(KC_ENT)
 
-#define RAISE OSL(_RAISE)
-#define NUMBER OSL(_NUMBER)
+#define RAISE MO(_RAISE)
+#define NUMBER MO(_NUMBER)
 #define LOW_SPC LT(_LOWER, KC_SPC)
 #define CTL_ESC LCTL_T(KC_ESC)
 
@@ -37,17 +37,21 @@ enum layer_number {
 };
 
 enum custom_keycodes {
-    CKC_ARW = SAFE_RANGE
+    CKC_ARW = SAFE_RANGE,
+    CKC_HME,
 };
 
 enum combos {
     CB_KL_CLN,
+    CB_DIR_UP,
 };
 
 const uint16_t PROGMEM kl_combo[] = {KC_K, KC_L, COMBO_END};
+const uint16_t PROGMEM dir_up_combo[] = {KC_COMM, KC_DOT, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
     [CB_KL_CLN] = COMBO(kl_combo, KC_COLN),
+    [CB_DIR_UP] = COMBO_ACTION(dir_up_combo),
 };
 
 // TAP DANCE
@@ -112,11 +116,10 @@ void td_swe_reset(qk_tap_dance_state_t *state, void *user_data) {
         }
     } 
 }
-
 enum {
     TD_OE,
     TD_AE,
-    TD_AO
+    TD_AO,
 };
 
 qk_tap_dance_action_t tap_dance_actions[] = {
@@ -148,14 +151,14 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [_LOWER] = LAYOUT(
   KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,                       KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
-  _______, _______, _______, PRV_TAB, NXT_TAB, _______,                     CTL_LFT, CTL_DWN, CTL_UP,  CTL_RGT, _______, SWE_AO,
+  _______, _______, _______, PRV_TAB, NXT_TAB, _______,                     KC_HOME, KC_PGDN, KC_PGUP, KC_END,  _______, SWE_AO,
   _______, _______, _______, _______, _______, _______,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, SWE_OE,  SWE_AE,
-  _______, _______, _______, _______, _______, _______,  _______, _______,  _______, _______, _______, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,  _______, _______,  CTL_LFT, CTL_DWN, CTL_UP,  CTL_RGT, _______, _______,
                              _______, _______, _______,  _______, _______,  _______, _______, _______
 ),
 
 [_RAISE] = LAYOUT(
-  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, CKC_HME,
   _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,                     KC_PLUS, KC_LCBR, KC_RCBR, KC_LBRC, KC_RBRC, _______,
   _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                     KC_EQL,  KC_LPRN, KC_RPRN, KC_DQUO, KC_QUOT, _______,
   _______, _______, _______, _______, _______, _______,  CKC_ARW, CKC_ARW,  KC_MINS, KC_PIPE, KC_AMPR, KC_UNDS, KC_BSLS, _______,
@@ -301,46 +304,51 @@ void add_keylog(uint16_t keycode) {
     blink_timeout = false;
 }
 
-bool recording_macro = false;
-bool dm_1_set = false;
-bool dm_2_set = false;
+bool recording_macro    = false;
+bool dm_1_set           = false;
+bool dm_2_set           = false;
+int macro_len           = 0;
 
 void dynamic_macro_record_start_user(void) {
     recording_macro = true;
+    macro_len = 0;
 }
+
 void dynamic_macro_record_end_user(int8_t direction) {
     if (direction == 1) {
-        dm_1_set = true;
+        dm_1_set = macro_len > 0;
     } else if (direction == -1) {
-        dm_2_set = true;
+        dm_2_set = macro_len > 0;
     }
     recording_macro = false;
+    macro_len = 0;
 }
 
 void render_keylogger_status(void) {
-    oled_write_P(PSTR("Keys "), false);
+    oled_write_P(PSTR("Hist."), false);
     oled_write(keylog_str, false);
 }
 
-void render_mod_alt(void) {
-    static const char PROGMEM font_alt[3] = {0x98, 0x99, 0};
-    oled_write_P(font_alt, (get_mods() & MOD_MASK_ALT));
-};
+void render_dm_record(void) {
+    static const char PROGMEM font_dm_record[2] = {0x19, 0};
+    oled_write_P(font_dm_record, false);
+}
 
-void render_mod_shift(void) {
-    static const char PROGMEM font_shift[3] = {0x9A, 0x9B, 0};
-    oled_write_P(font_shift, (get_mods() & MOD_MASK_SHIFT));
-};
+void render_dynamic_macro_state(void) {
+    oled_write_P(PSTR("Macro"), false);
 
-void render_mod_ctrl(void) {
-    static const char PROGMEM font_ctrl[3] = {0xB8, 0xB9, 0};
-    oled_write_P(font_ctrl, (get_mods() & MOD_MASK_CTRL));
-};
+    oled_write_P(PSTR("L"), false);
+    oled_write_P(dm_1_set ? PSTR(".") : PSTR(" "), false);
+    oled_write_P(PSTR("R"), false);
+    oled_write_P(dm_2_set ? PSTR(".") : PSTR(" "), false);
 
-void render_mod_gui(void) {
-    static const char PROGMEM font_gui[3] = {0xBA, 0xBB, 0};
-    oled_write_P(font_gui, (get_mods() & MOD_MASK_GUI));
-};
+
+    if (recording_macro) {
+        render_dm_record();
+    } else {
+        oled_write_P(PSTR(" "), false);
+    }
+}
 
 void render_default_layer_state(void) {
     if (timer_elapsed(log_timer) > BLINK_TIMEOUT) {
@@ -381,47 +389,35 @@ void render_keylock_status(led_t led_state) {
 }
 
 void render_mod_status(uint8_t modifiers) {
-    // oled_write_ln_P(PSTR("Mods"), false);
-    // oled_write_P(PSTR("S"), (modifiers & MOD_MASK_SHIFT));
-    // oled_write_P(PSTR("C"), (modifiers & MOD_MASK_CTRL));
-    // oled_write_P(PSTR("A"), (modifiers & MOD_MASK_ALT));
-    // oled_write_P(PSTR("G"), (modifiers & MOD_MASK_GUI));
-    // oled_write_P(PSTR(" "), false);
-    
-
-    render_mod_ctrl();
-    oled_write_P(PSTR("|"), false);
-    render_mod_shift();
-    oled_write("--+--", false);
-    render_mod_alt();
-    oled_write_P(PSTR("|"), false);
-    render_mod_gui();
+    oled_write_ln_P(PSTR("Mods"), false);
+    oled_write_P(PSTR("S"), (modifiers & MOD_MASK_SHIFT));
+    oled_write_P(PSTR("C"), (modifiers & MOD_MASK_CTRL));
+    oled_write_P(PSTR("A"), (modifiers & MOD_MASK_ALT));
+    oled_write_P(PSTR("G"), (modifiers & MOD_MASK_GUI));
+    oled_write_P(PSTR(" "), false);
 }
 
 void render_status_main(void) {
-    oled_write_P(PTSR("1"), dm_set_1);
-    oled_write_P(PTSR(" "), false);
-    oled_write_P(PTSR("2"), dm_set_2);
-    oled_write_P(PTSR(" "), false);
-    oled_write_P(recording_macro ? PTSR("*") : PTSR(" "), false);
-
     oled_write_ln("", false);
 
     // Show keyboard layout
     render_default_layer_state();
     oled_write_ln("", false);
 
+    // Show if macros are stored
+    render_dynamic_macro_state();
+    oled_write_ln("", false);
+
     // Show host keyboard led status
     render_keylock_status(host_keyboard_led_state());
     oled_write_ln("", false);
+
+    // Show modifier status
+    render_mod_status(get_mods());
     oled_write_ln("", false);
 
     // Show key log
     render_keylogger_status();
-    oled_write_ln("", false);
-    
-    // Show modifier status
-    render_mod_status(get_mods());
 }
 
 void suspend_power_down_user(void) {
@@ -444,8 +440,27 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     add_keylog(keycode);
 #endif
   }
-
+  if (recording_macro) {
+    if ((keycode >= QK_MOD_TAP && keycode <= QK_MOD_TAP_MAX) || (keycode >= QK_LAYER_TAP && keycode <= QK_LAYER_TAP_MAX)) {
+    } else {
+        switch (keycode) {
+            case DYN_REC_START1:
+            case DYN_REC_START2:
+            case DYN_MACRO_PLAY1:
+            case DYN_MACRO_PLAY2:
+            case DYN_REC_STOP:
+                break;
+            default:
+                macro_len++;
+        }
+    }
+  }
   switch (keycode) {
+    case CKC_HME:
+        if (record->event.pressed) {
+            SEND_STRING("~/");
+        }
+        break;
     case CKC_ARW:
         // Shortcut for typing ->
         if (record->event.pressed) {
@@ -454,4 +469,14 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         break;
   }
   return true;
+}
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+    switch(combo_index) {
+        case CB_DIR_UP:
+            if (pressed) {
+                SEND_STRING("../");
+            }
+            break;
+    }
 }
