@@ -22,14 +22,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define MASTER_LEFT
 
-#define TAPPING_TERM 180
+#define TAPPING_TERM 170
 #define TAPPING_TERM_PER_KEY
 
-#define COMBO_COUNT 2
+#define COMBO_COUNT 1
 #define COMBO_TERM 75
 
 #define IGNORE_MOD_TAP_INTERRUPT
 #define TAPPING_FORCE_HOLD
+#define PERMISSIVE_HOLD
 
 // Added to save space, remove if feature is needed
 #define DISABLE_LEADER
