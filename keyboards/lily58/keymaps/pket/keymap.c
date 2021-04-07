@@ -1,20 +1,29 @@
 #include QMK_KEYBOARD_H
 #include <stdio.h>
 
-#define LT_LBRC TD(TD_LT_LBRC) 
-#define GT_RBRC TD(TD_GT_RBRC) 
+#define DYN_MAC MO(_MACRO)
 
-#define RAISE_F LT(_RAISE, KC_F)
-#define RAISE_J LT(_RAISE, KC_J)
-#define SYM_D LT(_SYMBOL, KC_D)
-#define RAISE_ENT LT(_RAISE, KC_ENT)
-#define NUM_TAB LT(_NUMBER, KC_TAB)
-#define RAISE_ESC LT(_RAISE, KC_ESC)
+// BEGIN Left hand
+#define ESC_MED LT(_MEDIA, KC_ESC)
+#define SPC_NAV LT(_NAV, KC_SPC)
+#define TAB_MSE LT(_MOUSE, KC_TAB)
 
-#define RAISE MO(_RAISE)
-#define NUMBER MO(_NUMBER)
-#define LOW_SPC LT(_LOWER, KC_SPC)
-#define CTL_ESC LCTL_T(KC_ESC)
+#define HOME_A LCTL_T(KC_A)
+#define HOME_S LALT_T(KC_S)
+#define HOME_D LGUI_T(KC_D)
+#define HOME_F LSFT_T(KC_F)
+
+// BEGIN Right hand
+#define ENT_SYM LT(_SYM, KC_ENT)
+#define BSP_NUM LT(_NUM, KC_BSPC)
+#define DEL_FN LT(_FN, KC_DEL)
+
+#define HOME_J RSFT_T(KC_J)
+#define HOME_K RGUI_T(KC_K)
+#define HOME_L LALT_T(KC_L)
+#define HOME_SCN RCTL_T(KC_SCLN)
+
+
 
 #define NXT_TAB C(KC_TAB)
 #define PRV_TAB C(LSFT(KC_TAB))
@@ -29,132 +38,90 @@
 #define SWE_OE RALT(KC_P)
 
 // Left-hand home row mods
-#define HOME_A LCTL_T(KC_A)
-#define HOME_S LALT_T(KC_S)
-#define HOME_D LGUI_T(KC_D)
-#define HOME_F LSFT_T(KC_F)
-
 // Right-hand home row mods
-#define HOME_J RSFT_T(KC_J)
-#define HOME_K RGUI_T(KC_K)
-#define HOME_L LALT_T(KC_L)
-#define HOME_SCN RCTL_T(KC_SCLN)
-
 enum layer_number {
   _QWERTY = 0,
-  _LOWER,
-  _RAISE,
-  _ADJUST,
-  _NUMBER,
-  _NUMPAD,
-  _SYMBOL,
+  _MEDIA,
+  _SYM,
+  _NAV,
+  _NUM,
+  _FN,
+  _MOUSE,
+  _MACRO,
 };
 
 enum custom_keycodes {
     CKC_ARW = SAFE_RANGE,
     CKC_HME,
+    CKC_DUP,
 };
 
-enum combos {
-//    CB_KL_CLN,
-    CB_DIR_UP,
-};
-
-//const uint16_t PROGMEM kl_combo[] = {KC_K, KC_L, COMBO_END};
-const uint16_t PROGMEM dir_up_combo[] = {KC_COMM, KC_DOT, COMBO_END};
-
-combo_t key_combos[COMBO_COUNT] = {
- //   [CB_KL_CLN] = COMBO(kl_combo, KC_COLN),
-    [CB_DIR_UP] = COMBO_ACTION(dir_up_combo),
-};
-
-enum {
-    TD_LT_LBRC,
-    TD_GT_RBRC,
-};
-
-// Tap Dance definitions
-qk_tap_dance_action_t tap_dance_actions[] = {
-    // Tap once for Escape, twice for Caps Lock
-    [TD_LT_LBRC] = ACTION_TAP_DANCE_DOUBLE(KC_LT, KC_LBRC),
-    [TD_GT_RBRC] = ACTION_TAP_DANCE_DOUBLE(KC_GT, KC_RBRC),
-};
-
-// TODO
-// - Should I perhaps disable the num row all together
-// - Use Alt button and RGUI for something better, like layer toggle
-//   for some rarely used layer like media or function keys.
-// - Figure out if the left and right arrows belong on small layers
-// - Add more small layers centered around the F and J
-// - Create a pure media/system layer
-// - Add a layer for toggling state, like Caps Lock and Win/Mac mode
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [_QWERTY] = LAYOUT(
   KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_GRV,
   KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                        KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS,
-  CTL_ESC, HOME_A,  HOME_S,  HOME_D,  HOME_F,  KC_G,                        KC_H,    HOME_J,  HOME_K,  HOME_L,  HOME_SCN,KC_QUOT,
+  KC_ESC,  HOME_A,  HOME_S,  HOME_D,  HOME_F,  KC_G,                        KC_H,    HOME_J,  HOME_K,  HOME_L,  HOME_SCN,KC_QUOT,
   KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_LBRC,  KC_RBRC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-                             KC_LALT, KC_LGUI, NUM_TAB, LOW_SPC,  RAISE_ENT,RAISE_ESC,   KC_BSPC, KC_RALT
+                             DYN_MAC, ESC_MED, SPC_NAV, TAB_MSE,  ENT_SYM,  BSP_NUM, DEL_FN,  DYN_MAC
 ),
 
-[_LOWER] = LAYOUT(
-  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,                       KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,
-  _______, _______, _______, PRV_TAB, NXT_TAB, _______,                     KC_HOME, KC_PGDN, KC_PGUP, KC_END,  _______, SWE_AO,
-  _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, SWE_OE,  SWE_AE,
-  _______, _______, _______, _______, _______, _______,  _______, _______,  CTL_LFT, CTL_DWN, CTL_UP,  CTL_RGT, _______, _______,
-                             _______, _______, _______,  _______, _______,  _______, _______, _______
-),
-
-[_RAISE] = LAYOUT(
-  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, CKC_HME,
-  _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN,                     KC_PLUS, KC_LCBR, KC_RCBR, KC_LBRC, KC_RBRC, _______,
-  _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                     KC_EQL,  KC_LPRN, KC_RPRN, KC_DQUO, KC_QUOT, _______,
-  _______, _______, _______, _______, _______, _______,  CKC_ARW, CKC_ARW,  KC_MINS, KC_PIPE, KC_AMPR, KC_UNDS, KC_BSLS, _______,
-                             _______, _______, _______,  _______, _______,  _______, _______, _______
-),
-
-[_NUMBER] = LAYOUT(
+[_SYM] = LAYOUT(
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                     KC_CIRC, KC_AMPR, KC_ASTR, KC_LPRN, KC_RPRN, _______,
-  _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
-  _______, _______, _______, _______, _______, KC_LEFT,  _______, _______,  KC_RGHT, _______, _______, _______, _______, _______,
+  _______, KC_LCBR, KC_AMPR, KC_ASTR, KC_LPRN, KC_RCBR,                     _______, _______, _______, _______, _______, _______,
+  _______, KC_COLN, KC_DLR,  KC_PERC, KC_CIRC, KC_PLUS,                     _______, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
+  _______, KC_TILD, KC_EXLM, KC_AT,   KC_HASH, KC_PIPE,  _______, _______,  _______, _______, _______, _______, _______, _______,
+                             _______, KC_LPRN, KC_RPRN,  KC_UNDS, _______,  _______, _______, _______
+),
+
+[_FN] = LAYOUT(
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, KC_F12,  KC_F7,   KC_F8,   KC_F9,   _______,                     _______, _______, _______, _______, _______, _______,
+  _______, KC_F11,  KC_F4,   KC_F5,   KC_F6,   _______,                     _______, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
+  _______, KC_F10,  KC_F1,   KC_F2,   KC_F3,   _______,  _______, _______,  _______, _______, _______, _______, _______, _______,
                              _______, _______, _______,  _______, _______,  _______, _______, _______
 ),
 
-// BEGIN New stuff for home row mods
-[_NUM_LEFT] = LAYOUT(
+[_NUM] = LAYOUT(
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  _______, _______, KC_7,    KC_8,    KC_9,    KC_0,                        KC_PLUS, _______, _______, _______, _______, _______,
-  _______, _______, KC_4,    KC_5,    KC_6,    KC_SLSH,                     KC_EQL,  KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
-  _______, _______, KC_1,    KC_2,    KC_3,    KC_ASTR,  _______, _______,  KC_MINS, _______, _______, _______, _______, _______,
+  _______, KC_LBRC, KC_7,    KC_8,    KC_9,    KC_RBRC,                     _______, _______, _______, _______, _______, _______,
+  _______, KC_SCLN, KC_4,    KC_5,    KC_6,    KC_EQL,                      _______, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
+  _______, KC_GRV,  KC_1,    KC_2,    KC_3,    KC_BSLS,  _______, _______,  _______, _______, _______, _______, _______, _______,
+                             KC_COMM, KC_DOT,  KC_0,     KC_MINS, _______,  _______, _______, _______
+),
+
+[_MEDIA] = LAYOUT(
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     _______, KC_MPRV, KC_VOLD, KC_VOLU, KC_MNXT, _______,
+  _______, _______, _______, _______, _______, _______,  _______, _______,  _______, _______, _______, _______, _______, _______,
+                             _______, _______, _______,  _______, KC_MSTP,  KC_MPLY, KC_MUTE, _______
+),
+
+[_NAV] = LAYOUT( 
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,                     C(KC_C), C(KC_Z), C(KC_Y), C(KC_X), C(KC_V), _______,
+  _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     KC_CAPS, KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, CKC_HME,
+  _______, _______, _______, _______, _______, _______,  _______, _______,  KC_INS,  KC_HOME, KC_PGDN, KC_PGUP, KC_END,  CKC_DUP,
                              _______, _______, _______,  _______, _______,  _______, _______, _______
 ),
 
-[_S_NUM_LEFT] = LAYOUT(
+[_MOUSE] = LAYOUT(
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  _______, _______, KC_AMPR, KC_ASTR, KC_LPRN, KC_EQL,                      KC_PLUS, _______, _______, _______, _______, _______,
-  _______, _______, KC_DLR,  KC_PERC, KC_CIRC, _______,                     KC_EQL,  KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
-  _______, _______, KC_EXLM, KC_AT,   KC_HASH, _______,  _______, _______,  KC_MINS, _______, _______, _______, _______, _______,
-                             _______, _______, _______,  _______, _______,  _______, _______, _______
+  _______, _______, _______, _______, _______, _______,                     _______, _______, KC_MS_U, _______, _______, _______,
+  _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     _______, KC_MS_L, KC_MS_D, KC_MS_R, _______, _______,
+  _______, _______, _______, _______, _______, _______,  _______, _______,  _______, _______, _______, _______, _______, _______,
+                             _______, _______, _______,  _______, KC_BTN1,  KC_BTN3, KC_BTN2, _______
 ),
 
-[_SYM_RIGHT] = LAYOUT( // TODO create a system layer to put the ../ and ~/ keys on, combine with modified arrow keys
-  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  _______, _______, _______, _______, _______, _______,                     KC_PLUS, KC_PIPE, KC_LCBR, KC_RCBR, KC_AMPR, KC_UNDS,
-  _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     KC_EQL,  KC_EXLM, KC_LPRN, KC_RPRN, KC_COLN, KC_DQUO,
-  _______, _______, _______, _______, _______, _______,  _______, _______,  KC_MINS, KC_DLR,  LT_LBRC, GT_RBRC, KC_QUES, KC_BSLS,
-                             _______, _______, _______,  _______, _______,  CKC_ARW, KC_LEFT, KC_RGHT
-),
-// END 
-
-[_ADJUST] = LAYOUT(
+[_MACRO] = LAYOUT(
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
-  DM_REC1, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   KC_VOLU, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, DM_REC2,
-  DM_RSTP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   KC_VOLD, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, DM_RSTP,
-  DM_PLY1, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_MUTE, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, DM_PLY2,
+  DM_REC1, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, DM_REC2,
+  DM_RSTP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, DM_RSTP,
+  DM_PLY1, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, DM_PLY2,
                              _______, _______, _______, _______, _______, _______, _______, _______
 )
+
 };
 
 // TEMPLATE
@@ -177,8 +144,9 @@ uint16_t get_tapping_term(uint16_t keycode, keyrecord_t *record) {
         case LCTL_T(KC_A):
         case RCTL_T(KC_SCLN):
             return TAPPING_TERM + 75;
-        case LT(_LOWER, KC_SPC):
-            return TAPPING_TERM + 75;
+            // TODO Update for the new thumb keys, either remove and add when needed or apply for all
+        // case LT(_LOWER, KC_SPC):
+        //    return TAPPING_TERM + 75;
         default:
             return TAPPING_TERM;
     }
@@ -234,11 +202,6 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
 }
 
 
-layer_state_t layer_state_set_user(layer_state_t state) {
-  state = update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
-  return state;
-}
-
 const char *read_logo(void);
 
 #define KEYLOG_LEN 6
@@ -260,7 +223,8 @@ const char code_to_name[60] = {
 
 void add_keylog(uint16_t keycode) {
     if ((keycode >= QK_MOD_TAP && keycode <= QK_MOD_TAP_MAX) || (keycode >= QK_LAYER_TAP && keycode <= QK_LAYER_TAP_MAX)) {
-        keycode = keycode & 0xFF;
+        // keycode = keycode & 0xFF;
+        return;
     }
 
     for (uint8_t i = KEYLOG_LEN - 1; i > 0; i--) {
@@ -295,11 +259,6 @@ void dynamic_macro_record_end_user(int8_t direction) {
     macro_len = 0;
 }
 
-void render_keylogger_status(void) {
-    oled_write_P(PSTR("Keys "), false);
-    oled_write(keylog_str, false);
-}
-
 void render_dm_record(void) {
     static const char PROGMEM font_dm_record[2] = {0x19, 0};
     oled_write_P(font_dm_record, false);
@@ -320,6 +279,11 @@ void render_dynamic_macro_state(void) {
     }
 }
 
+void render_keylogger_status(void) {
+    oled_write_P(PSTR("Keys "), false);
+    oled_write(keylog_str, false);
+}
+
 void render_default_layer_state(void) {
     if (timer_elapsed(log_timer) > BLINK_TIMEOUT) {
         blink_timeout = true;
@@ -328,25 +292,23 @@ void render_default_layer_state(void) {
     bool blink = (timer_read() % 1000) < BLINK_INTERVAL || blink_timeout;
     switch (get_highest_layer(layer_state)) {
         case _QWERTY:
-            oled_write_ln_P(blink ? PSTR(">_   ") : PSTR(">    "), false);
-            break;
-        case _LOWER:
-            oled_write_ln_P(blink ? PSTR(">lo_ ") : PSTR(">lo  "), false);
-            break;
-        case _RAISE:
-            oled_write_ln_P(blink ? PSTR(">hi_ ") : PSTR(">hi  "), false);
-            break;
-        case _ADJUST:
-            oled_write_ln_P(blink ? PSTR(">adj_") : PSTR(">adj "), false);
-            break;
-        case _SYMBOL:
-            oled_write_ln_P(blink ? PSTR(">sym_") : PSTR(">sym "), false);
-            break;
-        case _NUMBER:
-            oled_write_ln_P(blink ? PSTR(">num_") : PSTR(">num "), false);
-            break;
+            oled_write_ln_P(blink ? PSTR(">_   ") : PSTR(">    "), false); break;
+        case _SYM:
+            oled_write_ln_P(blink ? PSTR(">sym_") : PSTR(">sym "), false); break;
+        case _NUM:
+            oled_write_ln_P(blink ? PSTR(">num_") : PSTR(">num "), false); break;
+        case _NAV:
+            oled_write_ln_P(blink ? PSTR(">nav_") : PSTR(">nav "), false); break;
+        case _FN:
+            oled_write_ln_P(blink ? PSTR(">fn_ ") : PSTR(">fn  "), false); break;
+        case _MACRO:
+            oled_write_ln_P(blink ? PSTR(">dm_ ") : PSTR(">dm  "), false); break;
+        case _MOUSE:
+            oled_write_ln_P(blink ? PSTR(">ms_ ") : PSTR(">ms  "), false); break;
+        case _MEDIA:
+            oled_write_ln_P(blink ? PSTR(">med_") : PSTR(">med "), false); break;
         default:
-            oled_write_ln_P(blink ? PSTR(">udf_") : PSTR(">udf "), false);
+            oled_write_ln_P(blink ? PSTR(">udf_") : PSTR(">udf "), false); break;
     }
 }
 
@@ -437,18 +399,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             SEND_STRING("->");
         }
         break;
+    case CKC_DUP:
+        if (record->event.pressed) {
+            SEND_STRING("../");
+        }
+        break;
   }
   return true;
 }
 
-void process_combo_event(uint16_t combo_index, bool pressed) {
-    switch(combo_index) {
-        case CB_DIR_UP:
-            if (pressed) {
-// - Add suspend block with oled off 
-// - Add suspend block with oled off 
-                SEND_STRING("../");
-            }
-            break;
-    }
-}

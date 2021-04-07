@@ -3,7 +3,7 @@
 	#   the appropriate keymap folder that will get included automatically
 	#
 	BOOTMAGIC_ENABLE = no       # Virtual DIP switch configuration
-	MOUSEKEY_ENABLE = no        # Mouse keys
+	MOUSEKEY_ENABLE = yes       # Mouse keys
 	EXTRAKEY_ENABLE = yes       # Audio control and System control
 	CONSOLE_ENABLE = no         # Console for debug
 	COMMAND_ENABLE = no         # Commands for debug and configuration
@@ -18,8 +18,8 @@
 	OLED_DRIVER_ENABLE = yes     # OLED display
 	AUTO_SHIFT_ENABLE = no
 	WPM_ENABLE = no
-	TAP_DANCE_ENABLE = yes
-	COMBO_ENABLE = yes
+	TAP_DANCE_ENABLE = no
+	COMBO_ENABLE = no
 	DYNAMIC_MACRO_ENABLE = yes
 
 	# Do not enable SLEEP_LED_ENABLE. it uses the same timer as BACKLIGHT_ENABLE
