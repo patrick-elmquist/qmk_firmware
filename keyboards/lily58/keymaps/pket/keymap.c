@@ -1,98 +1,160 @@
 #include QMK_KEYBOARD_H
 #include <stdio.h>
 
-#define SYSTEM MO(_SYSTEM)
+// TODO
+// - Have the symbol switch, either on the space button or on the other hand
+//   It makes it a lot easier to type quickly, currently the thumb needs to move
+//   when swapping layers.
+// - 
+// 
 
-// BEGIN Left hand
-#define ESC_MSE LT(_MOUSE, KC_ESC)
+// DEBUG
+#define RESUME A(G(KC_R))
+#define STP_IN KC_F7
+#define STP_OUT S(KC_F8)
+#define STP_OVR KC_F8
+#define TO_CURS A(KC_F9)
+#define TO_EXPR A(KC_F10)
+#define TGL_BPT G(KC_F8)
+#define SHW_BPT G(S(KC_F8))
+#define EVAL_EX A(KC_F8)
+
 #define TAB_NAV LT(_NAV, KC_TAB)
-#define SPC_NUM LT(_NUM, KC_SPC)
+#define TAB_SYM LT(_SYM, KC_TAB)
+#define TAB_NUM LT(_NUM, KC_TAB)
+#define TAB_SYS LT(_SYS, KC_TAB)
 
+#define SPC_NUM LT(_NUM, KC_SPC)
+#define SPC_NAV LT(_NAV, KC_SPC)
+#define SPC_SYM LT(_SYM_2, KC_SPC)
+
+#define ENT_SYM LT(_SYM, KC_ENT)
+#define ENT_NUM LT(_NUM, KC_ENT)
+
+#define BSP_NUM LT(_NUM, KC_BSPC)
+#define BSP_SYM LT(_SYM, KC_BSPC)
+
+#define ESC_SYS LT(_SYS, KC_ESC)
+#define ESC_NAV LT(_NAV, KC_ESC)
+
+// Home row mods
 #define HOME_A LCTL_T(KC_A)
 #define HOME_S LALT_T(KC_S)
 #define HOME_D LGUI_T(KC_D)
 #define HOME_F LSFT_T(KC_F)
-
-// BEGIN Right hand
-#define ENT_SYM LT(_SYM, KC_ENT)
-#define BSP_NUM LT(_NUM, KC_BSPC)
-#define SPC_SYM LT(_SYM, KC_SPC)
 
 #define HOME_J RSFT_T(KC_J)
 #define HOME_K RGUI_T(KC_K)
 #define HOME_L LALT_T(KC_L)
 #define HOME_SCN RCTL_T(KC_SCLN)
 
-#define H_SYM LT(_SYM, KC_H)
-#define N_FN LT(_FN, KC_N)
+#define CTL_LFT C(KC_LEFT)
+#define CTL_UP C(KC_UP)
+#define CTL_DWN C(KC_DOWN)
+#define CTL_RGT C(KC_RGHT)
+
+#define DEBUG TG(_DBG)
+#define SWE TG(_SWE)
 
 enum layer_number {
   _QWERTY = 0,
-  _MOUSE,
   _SYM,
-  _SYSTEM,
+  _SYM_2,
+  _SYS,
   _NAV,
   _NUM,
+  _SWE,
   _FN,
+  _DBG,
 };
 
 enum custom_keycodes {
     CKC_ARW = SAFE_RANGE,
     CKC_HME,
     CKC_DUP,
+    SWE_AE,
+    SWE_OE,
+    SWE_AO,
+    CLN_FN
 };
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [_QWERTY] = LAYOUT(
-  KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_GRV,
-  KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                        KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS,
-  KC_ESC,  HOME_A,  HOME_S,  HOME_D,  HOME_F,  KC_G,                        H_SYM,   HOME_J,  HOME_K,  HOME_L,  HOME_SCN,KC_QUOT,
-  KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_LBRC,  KC_RBRC,  N_FN,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
-                             SYSTEM,  ESC_MSE, TAB_NAV, SPC_NUM,  ENT_SYM,  KC_BSPC, KC_DEL, SYSTEM
+  KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                         KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_GRV,
+  KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                         KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS,
+  KC_ESC,  HOME_A,  HOME_S,  HOME_D,  HOME_F,  LT(_SYM_2, KC_G),             KC_H,    HOME_J,  HOME_K,  HOME_L,  HOME_SCN,KC_QUOT,
+  KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,      KC_LBRC, KC_RBRC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_RSFT,
+                             DEBUG,   TAB_SYS, ESC_NAV,   SPC_SYM, ENT_SYM,  BSP_NUM, CLN_FN,  SWE
 ),
 
+/*
+ * ,-------------------,    ,-------------------.
+ * | ! | # | { | | | } |    | ` | - | _ |-> | \ |
+ * |---+---+---+---+---+    +---+---+---+---+---|
+ * | ! | @ | ( | $ | ) |    | : | + | = | * | ; |
+ * |---+---+---+---+---+    +---+---+---+---+---|
+ * | % | ^ | [ | & | ] |    | ~ | / | < | > | ? |
+ * `-------------------'    '-------------------'
+ */                       
 [_SYM] = LAYOUT(
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  _______, KC_LCBR, KC_LPRN, KC_PIPE, KC_RPRN, KC_RCBR,                     _______, _______, _______, _______, _______, _______,
-  _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                     _______, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
-  _______, KC_CIRC, KC_AMPR, KC_ASTR, KC_UNDS, CKC_ARW,  _______, _______,  _______, _______, _______, _______, _______, _______,
-                             _______, _______, _______,  KC_UNDS, _______,  _______, _______, _______
+  _______, KC_EXLM, KC_HASH, KC_LCBR, KC_PIPE, KC_RCBR,                     KC_GRV,  KC_UNDS, KC_MINS, CKC_ARW, KC_BSLS, _______,
+  _______, KC_EXLM, KC_AT,   KC_LPRN, KC_DLR,  KC_RPRN,                     KC_COLN, KC_EQL,  KC_PLUS, KC_ASTR, KC_SCLN, KC_DQUO,
+  _______, KC_PERC, KC_CIRC, KC_LBRC, KC_AMPR, KC_RBRC,  _______, _______,  KC_TILD, KC_SLSH, KC_LT,   KC_GT,   KC_QUES, KC_BSLS,
+                             _______, _______, _______,  _______, _______,  _______, _______, _______
+),
+
+[_SYM_2] = LAYOUT(
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,                     KC_EXLM, KC_LPRN, KC_PIPE, KC_RPRN, _______, _______,
+  _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                     KC_EQL,  KC_LCBR, KC_AMPR, KC_RCBR, KC_COLN, KC_DQUO,
+  _______, _______, _______, _______, _______, _______,  _______, _______,  KC_DLR,  CKC_ARW, KC_UNDS, _______, KC_QUES, KC_BSLS,
+                             _______, _______, _______,  _______, _______,  _______, _______, _______
 ),
 
 [_FN] = LAYOUT(
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  KC_F7,   KC_F8,   KC_F9,   KC_F10,  KC_F11,  KC_F12,                      _______, _______, _______, _______, _______, _______,
-  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   KC_F6,                       _______, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
+  KC_F11,  KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,                       _______, _______, _______, _______, _______, _______, 
+  KC_F12,  KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,                      _______, KC_RSFT, KC_RGUI, KC_LALT, KC_RCTL, _______,
   _______, _______, _______, _______, _______, _______,  _______, _______,  _______, _______, _______, _______, _______, _______,
                              _______, _______, _______,  _______, _______,  _______, _______, _______
 ),
 
 [_NUM] = LAYOUT(
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  _______, _______, _______, _______, _______, _______,                     KC_PLUS, KC_7,    KC_8,    KC_9,    _______, _______,
-  _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     KC_EQL,  KC_4,    KC_5,    KC_6,    _______, _______,
-  _______, _______, _______, _______, _______, _______,  _______, _______,  KC_MINS, KC_1,    KC_2,    KC_3,    _______, _______,
-                             _______, _______, _______,  _______, KC_0,     KC_0,    _______, _______
-),
-
-[_NAV] = LAYOUT( 
-  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  _______, _______, _______, _______, _______, _______,                     C(KC_C), C(KC_Z), C(KC_Y), C(KC_X), C(KC_V), _______,
-  _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, CKC_HME, _______,
-  _______, _______, _______, _______, _______, _______,  _______, KC_CAPS,  KC_HOME, KC_PGDN, KC_PGUP, KC_END,  CKC_DUP, _______,
-                             _______, _______, _______,  _______, _______,  _______, _______, _______
-),
-
-[_MOUSE] = LAYOUT(
-  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  _______, _______, _______, _______, _______, _______,                     _______, KC_BTN1, KC_MS_U, KC_BTN2, _______, _______,
-  _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     _______, KC_MS_L, KC_MS_D, KC_MS_R, _______, _______,
+  _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
+  _______, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                     KC_EQL,  KC_PLUS, KC_MINS, KC_ASTR, KC_SLSH, _______,
   _______, _______, _______, _______, _______, _______,  _______, _______,  _______, _______, _______, _______, _______, _______,
                              _______, _______, _______,  _______, _______,  _______, _______, _______
 ),
 
-[_SYSTEM] = LAYOUT(
+[_NAV] = LAYOUT( 
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,                     CTL_LFT, CTL_DWN, CTL_UP,  CTL_RGT, _______, _______,
+  _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, _______, _______,
+  _______, _______, _______, _______, _______, _______,  _______, KC_CAPS,  _______, _______, _______, _______, _______, _______,
+                             _______, _______, _______,  _______, _______,  _______, _______, _______
+),
+
+[_SWE] = LAYOUT(
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, SWE_OE,  SWE_AE,
+  _______, _______, _______, _______, _______, _______,  SWE_AO,  _______,  _______, _______, _______, _______, _______, _______,
+                             _______, _______, _______,  _______, _______,  _______, _______, _______
+),
+
+
+[_DBG] = LAYOUT(
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, _______, _______, STP_OUT, RESUME,  EVAL_EX,                     _______, SHW_BPT, TGL_BPT, _______, _______, _______,
+  _______, _______, _______, STP_IN,  STP_OVR, TO_EXPR,                     _______, _______, _______, _______, _______, _______,  
+  _______, _______, _______, _______, _______, TO_CURS,  _______, _______,  _______, _______, _______, _______, _______, _______,
+                             _______, _______, _______,  _______, _______,  _______, _______, _______
+),
+
+[_SYS] = LAYOUT(
   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,
   DM_REC1, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLU,                   XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, DM_REC2,
   DM_RSTP, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_VOLD,                   XXXXXXX, KC_MPRV, KC_MPLY, KC_MNXT, XXXXXXX, DM_RSTP,
@@ -261,16 +323,20 @@ void render_default_layer_state(void) {
             oled_write_ln_P(blink ? PSTR(">_   ") : PSTR(">    "), false); break;
         case _SYM:
             oled_write_ln_P(blink ? PSTR(">sym_") : PSTR(">sym "), false); break;
+        case _SYM_2:
+            oled_write_ln_P(blink ? PSTR(">sy2_") : PSTR(">sy2 "), false); break;
         case _NUM:
             oled_write_ln_P(blink ? PSTR(">num_") : PSTR(">num "), false); break;
         case _NAV:
             oled_write_ln_P(blink ? PSTR(">nav_") : PSTR(">nav "), false); break;
         case _FN:
             oled_write_ln_P(blink ? PSTR(">fn_ ") : PSTR(">fn  "), false); break;
-        case _SYSTEM:
+        case _SYS:
             oled_write_ln_P(blink ? PSTR(">sys_") : PSTR(">sys "), false); break;
-        case _MOUSE:
-            oled_write_ln_P(blink ? PSTR(">ms_ ") : PSTR(">ms  "), false); break;
+        case _DBG:
+            oled_write_ln_P(blink ? PSTR(">dbg_") : PSTR(">dbg "), false); break;
+        case _SWE:
+            oled_write_ln_P(blink ? PSTR(">swe_") : PSTR(">swe "), false); break;
         default:
             oled_write_ln_P(blink ? PSTR(">udf_") : PSTR(">udf "), false); break;
     }
@@ -356,6 +422,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         }
     }
 
+    static uint16_t my_colon_timer;
     mod_state = get_mods();
         switch (keycode) {
             case CKC_HME: 
@@ -368,25 +435,63 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 if (record->event.pressed) SEND_STRING("../"); 
                 break;
 
-            case KC_BSPC: {
-                static bool delkey_registered;
+            case SWE_AE:
                 if (record->event.pressed) {
                     if (mod_state & MOD_MASK_SHIFT) {
                         del_mods(MOD_MASK_SHIFT);
-                        register_code(KC_DEL);
-                        delkey_registered = true;
-                        set_mods(mod_state);
-                        return false;
                     }
+                   tap_code16(A(KC_U)); 
+                   set_mods(mod_state);
+                   tap_code16(KC_A);
+                }
+                break;
+            case SWE_OE:
+                if (record->event.pressed) {
+                    if (mod_state & MOD_MASK_SHIFT) {
+                        del_mods(MOD_MASK_SHIFT);
+                    }
+                   tap_code16(A(KC_U)); 
+                   set_mods(mod_state);
+                   tap_code16(KC_O);
+                }
+                break;
+            case SWE_AO:
+                if (record->event.pressed) {
+                   tap_code16(A(KC_A)); 
+                }
+                break;
+
+            case CLN_FN:
+                if (record->event.pressed)  {
+                    my_colon_timer = timer_read();
+                    layer_on(_FN);
                 } else {
-                    if (delkey_registered) {
-                        unregister_code(KC_DEL);
-                        delkey_registered = false;
-                        return false; 
+                    layer_off(_FN);
+                    if (timer_elapsed(my_colon_timer) < TAPPING_TERM) {
+                        SEND_STRING(":");
                     }
                 }
-            } break;
+                return false;
+            // case KC_BSPC: {
+            //     static bool delkey_registered;
+            //     if (record->event.pressed) {
+            //         if (mod_state & MOD_MASK_SHIFT) {
+            //             del_mods(MOD_MASK_SHIFT);
+            //             register_code(KC_DEL);
+            //             delkey_registered = true;
+            //             set_mods(mod_state);
+            //             return false;
+            //         }
+            //     } else {
+            //         if (delkey_registered) {
+            //             unregister_code(KC_DEL);
+            //             delkey_registered = false;
+            //             return false; 
+            //         }
+            //     }
+            // } break;
         }
     return true;
 }
-
+                          
+                          

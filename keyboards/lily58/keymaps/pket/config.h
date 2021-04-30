@@ -1,16 +1,4 @@
 /*
-
-/m TEMPLATE
-// [_UNDEF] = LAYOUT(
-//   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-//   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-//   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-//   _______, _______, _______, _______, _______, _______,  _______, _______,  _______, _______, _______, _______, _______, _______,
-//                              _______, _______, _______,  _______, _______,  _______, _______, _______
-// ),
-
-This is the c configuration file for the keymap
-
 Copyright 2012 Jun Wako <wakojun@gmail.com>
 Copyright 2015 Jack Humbert
 
@@ -33,10 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MASTER_LEFT
 
 #define TAPPING_TERM 180
+#undef TAPPING_TOGGLE
+#define TAPPING_TOGGLE 2
 #define TAPPING_TERM_PER_KEY
-
-// #define COMBO_COUNT 1
-// #define COMBO_TERM 75
 
 #define IGNORE_MOD_TAP_INTERRUPT
 #define TAPPING_FORCE_HOLD
