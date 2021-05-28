@@ -8,7 +8,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   KC_ESC,  KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    KC_GRV,
   KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                        KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS,
   KC_ESC,  HOME_A,  HOME_S,  HOME_D,  HOME_F,  KC_G,                        KC_H,    HOME_J,  HOME_K,  HOME_L,  HOME_SCN,KC_QUOT,
-  KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,     KC_LBRC, KC_RBRC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, SWE_TGL,
+  KC_LSFT, KC_Z,    KC_X,    KC_C,    SY_KT_V, KC_B,     KC_LBRC, KC_RBRC,  KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, SWE_TGL,
                              DEBUG,   ESC_SYS, TAB_NAV,  SPC_SYM, ENT_SYM,  BSP_NUM, CLN_FN,  SWE
 ),
 
@@ -20,17 +20,25 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                              _______, _______, _______,  _______, _______,  KC_BSPC, _______, _______
 ),
 
-// [_SYM_2] = LAYOUT(
-//   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-//   _______, KC_EXLM, KC_AT,   KC_LCBR, KC_RCBR, KC_PIPE,                     KC_AMPR, KC_UNDS, KC_PLUS, CKC_ARW, _______, _______,
-//   _______, KC_HASH, KC_DLR,  KC_LPRN, KC_RPRN, KC_TILD,                     KC_SLSH, KC_MINS, KC_EQL,  KC_ASTR, KC_COLN, KC_DQUO,
-//   _______, KC_PERC, KC_CIRC, KC_LBRC, KC_RBRC, KC_GRV,   _______, _______,  KC_QUES, KC_COLN, KC_LT,   KC_GT,   KC_QUES, KC_BSLS,
-//                              _______, _______, _______,  _______, _______,  KC_BSPC, _______, _______
-// ),
+[_SYM_KT] = LAYOUT(
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,                     KC_PIPE, KC_LCBR, KC_RCBR, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,                     KC_EXLM, KC_LPRN, KC_RPRN, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,  _______, _______,  KC_AMPR, KC_LBRC, KC_RBRC, _______, _______, _______,
+                             _______, _______, _______,  _______, _______,  KC_BSPC, _______, _______
+),
+
+[_SYM_MT] = LAYOUT(
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
+  _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
+  _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     _______, KC_EQL,  KC_PLUS, _______, _______, _______,
+  _______, _______, _______, _______, _______, _______,  _______, _______,  _______, KC_MINS, KC_UNDS, _______, _______, _______,
+                             _______, _______, _______,  _______, _______,  KC_BSPC, _______, _______
+),
 
 [_NAV] = LAYOUT(
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
+  _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
   _______, KC_LCTL, KC_LALT, KC_LGUI, KC_LSFT, _______,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, _______, _______,
   _______, _______, _______, _______, _______, _______,  _______, _______,  _______, _______, _______, _______, _______, _______,
                              _______, _______, _______,  _______, _______,  KC_BSPC, _______, _______
@@ -38,9 +46,9 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
 [_NUM] = LAYOUT(
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
-  _______, _______, _______, _______, _______, _______,                     _______, KC_7,    KC_8,    KC_9,    _______, _______,
-  _______, G_TILDE, _______, G_PLUS,  G_S_RBC, G_RBC,                       KC_0,    KC_4,    KC_5,    KC_6,    _______, _______,
-  _______, _______, _______, G_MINUS, G_S_LBC, G_LBC,    _______, _______,  _______, KC_1,    KC_2,    KC_3,    _______, _______,
+  _______, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                        KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    _______,
+  _______, _______, _______, _______, _______, _______,                     KC_0,    KC_4,    KC_5,    KC_6,    _______, _______,
+  _______, _______, _______, _______, _______, _______,  _______, _______,  _______, KC_1,    KC_2,    KC_3,    _______, _______,
                              _______, _______, _______,  _______, _______,  KC_BSPC, _______, _______
 ),
 
@@ -52,7 +60,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                              _______, _______, _______,  _______, _______,  KC_BSPC, _______, _______
 ),
 
-
 [_SWE] = LAYOUT(
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
@@ -60,7 +67,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
   _______, _______, _______, _______, _______, _______,  SWE_AO,  _______,  _______, _______, _______, _______, _______, _______,
                              _______, _______, _______,  _______, _______,  KC_BSPC, _______, _______
 ),
-
 
 [_DBG] = LAYOUT(
   _______, _______, _______, _______, _______, _______,                     _______, _______, _______, _______, _______, _______,
@@ -226,32 +232,37 @@ void render_keylogger_status(void) {
     oled_write(keylog_str, false);
 }
 
-void render_default_layer_state(void) {
+void render_default_layer_state_2(void) {
     if (timer_elapsed(log_timer) > BLINK_TIMEOUT) {
         blink_timeout = true;
     }
 
     bool blink = (timer_read() % 1000) < BLINK_INTERVAL || blink_timeout;
+    oled_write_P(PSTR("$"), false);
     switch (get_highest_layer(layer_state)) {
         case _QWERTY:
-            oled_write_ln_P(blink ? PSTR(">_   ") : PSTR(">    "), false); break;
+            oled_write_P(blink ? PSTR("_") : PSTR(" "), false);
+            oled_write_P(blink ? PSTR("   ") : PSTR("   "), false); return;
         case _SYM:
-            oled_write_ln_P(blink ? PSTR(">sym_") : PSTR(">sym "), false); break;
+            oled_write_P(blink ? PSTR("SYM") : PSTR("SYM"), false); break;
+        case _SYM_KT:
+            oled_write_P(blink ? PSTR("KTL") : PSTR("KTL"), false); break;
         case _NUM:
-            oled_write_ln_P(blink ? PSTR(">num_") : PSTR(">num "), false); break;
+            oled_write_P(blink ? PSTR("NUM") : PSTR("NUM"), false); break;
         case _NAV:
-            oled_write_ln_P(blink ? PSTR(">nav_") : PSTR(">nav "), false); break;
+            oled_write_P(blink ? PSTR("NAV") : PSTR("NAV"), false); break;
         case _FN:
-            oled_write_ln_P(blink ? PSTR(">fn_ ") : PSTR(">fn  "), false); break;
+            oled_write_P(blink ? PSTR("FUN") : PSTR("FUN"), false); break;
         case _SYS:
-            oled_write_ln_P(blink ? PSTR(">sys_") : PSTR(">sys "), false); break;
+            oled_write_P(blink ? PSTR("SYS") : PSTR("SYS"), false); break;
         case _DBG:
-            oled_write_ln_P(blink ? PSTR(">dbg_") : PSTR(">dbg "), false); break;
+            oled_write_P(blink ? PSTR("DBG") : PSTR("DBG"), false); break;
         case _SWE:
-            oled_write_ln_P(blink ? PSTR(">swe_") : PSTR(">swe "), false); break;
+            oled_write_P(blink ? PSTR("SWE") : PSTR("SWE"), false); break;
         default:
-            oled_write_ln_P(blink ? PSTR(">udf_") : PSTR(">udf "), false); break;
+            oled_write_P(blink ? PSTR("UDF") : PSTR("UDF"), false); break;
     }
+    oled_write_P(blink ? PSTR("_") : PSTR(" "), false);
 }
 
 void render_keylock_status(led_t led_state) {
@@ -275,7 +286,7 @@ void render_status_main(void) {
     oled_write_ln("", false);
 
     // Show layer
-    render_default_layer_state();
+    render_default_layer_state_2();
     oled_write_ln("", false);
 
     // Show if macros are stored
@@ -344,6 +355,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             case CKC_ARW: 
                 if (KEY_DOWN) SEND_STRING("->"); 
                 break;
+            case CKC_ELD: 
+                if (KEY_DOWN) SEND_STRING("?."); 
+                break;
+            case CKC_ELC: 
+                if (KEY_DOWN) SEND_STRING("?:"); 
+                break;
             case CKC_DUP:
                 if (KEY_DOWN) SEND_STRING("../"); 
                 break;
@@ -351,9 +368,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             case SWE_TGL:
                 if (KEY_DOWN) {
                     swe_timer=timer_read();
-                    register_mods(MOD_RSFT);
+                    register_mods(MOD_BIT(KC_RSFT));
                 } else {
-                    unregister_mods(MOD_RSFT);
+                    unregister_mods(MOD_BIT(KC_RSFT));
                     if (timer_elapsed(swe_timer) < TAPPING_TERM) {
                         if (IS_LAYER_ON(_SWE)) {
                             layer_off(_SWE);

@@ -7,7 +7,7 @@
 
 #define SPC_NUM LT(_NUM, KC_SPC)
 #define SPC_NAV LT(_NAV, KC_SPC)
-#define SPC_SYM LT(_SYM, KC_SPC)
+#define SPC_SYM LT(_SYM_KT, KC_SPC)
 
 #define ENT_SYM LT(_SYM, KC_ENT)
 #define ENT_NUM LT(_NUM, KC_ENT)
@@ -18,6 +18,7 @@
 #define ESC_SYS LT(_SYS, KC_ESC)
 #define ESC_NAV LT(_NAV, KC_ESC)
 
+#define SY_KT_V LT(_SYM_KT, KC_V)
 // Home row mods
 #define HOME_A LCTL_T(KC_A)
 #define HOME_S LALT_T(KC_S)
@@ -29,7 +30,7 @@
 #define HOME_L LALT_T(KC_L)
 #define HOME_SCN RCTL_T(KC_SCLN)
 
-#define DEBUG TG(_DBG)
+#define DEBUG OSL(_DBG)
 #define SWE TG(_SWE)
 
 // Debug shortcuts
@@ -49,18 +50,20 @@
 #define G_RBC G(KC_RBRC)
 #define G_S_LBC G(S(KC_LBRC))
 #define G_S_RBC G(S(KC_RBRC))
-#define G_PLUS G(KC_PLUS)
-#define G_MINUS G(KC_MINS)
+#define G_Z_PLS G(KC_PLUS)
+#define G_Z_MNS G(KC_MINS)
+#define G_Z_ZRO G(KC_0)
 
 #define KEY_DOWN (record->event.pressed)
 
 enum layer_number {
   _QWERTY = 0,
+  _SWE,
   _SYM,
+  _SYM_KT,
   _SYS,
   _NAV,
   _NUM,
-  _SWE,
   _FN,
   _DBG,
 };
@@ -69,6 +72,8 @@ enum custom_keycodes {
     CKC_ARW = SAFE_RANGE,
     CKC_HME,
     CKC_DUP,
+    CKC_ELD,
+    CKC_ELC,
     SWE_TGL,
     SWE_AE,
     SWE_OE,
