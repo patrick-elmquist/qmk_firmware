@@ -1,24 +1,11 @@
 #pragma once
 
-#define TAB_NAV LT(_NAV, KC_TAB)
-#define TAB_SYM LT(_SYM, KC_TAB)
-#define TAB_NUM LT(_NUM, KC_TAB)
-#define TAB_SYS LT(_SYS, KC_TAB)
+#define LOWER LT(_LOWER, KC_TAB)
+#define RAISE LT(_RAISE, KC_BSPC)
 
-#define SPC_NUM LT(_NUM, KC_SPC)
-#define SPC_NAV LT(_NAV, KC_SPC)
-#define SPC_SYM LT(_SYM_KT, KC_SPC)
+#define WORD A(KC_RIGHT)
+#define BACK A(KC_LEFT)
 
-#define ENT_SYM LT(_SYM, KC_ENT)
-#define ENT_NUM LT(_NUM, KC_ENT)
-
-#define BSP_NUM LT(_NUM, KC_BSPC)
-#define BSP_SYM LT(_SYM, KC_BSPC)
-
-#define ESC_SYS LT(_SYS, KC_ESC)
-#define ESC_NAV LT(_NAV, KC_ESC)
-
-#define SY_KT_V LT(_SYM_KT, KC_V)
 // Home row mods
 #define HOME_A LCTL_T(KC_A)
 #define HOME_S LALT_T(KC_S)
@@ -29,20 +16,6 @@
 #define HOME_K RGUI_T(KC_K)
 #define HOME_L LALT_T(KC_L)
 #define HOME_SCN RCTL_T(KC_SCLN)
-
-#define DEBUG OSL(_DBG)
-#define SWE TG(_SWE)
-
-// Debug shortcuts
-#define RESUME A(G(KC_R))
-#define STP_IN KC_F7
-#define STP_OUT S(KC_F8)
-#define STP_OVR KC_F8
-#define TO_CURS A(KC_F9)
-#define TO_EXPR A(KC_F10)
-#define TGL_BPT G(KC_F8)
-#define SHW_BPT G(S(KC_F8))
-#define EVAL_EX A(KC_F8)
 
 // MacOS shortcuts
 #define G_TILDE G(KC_TILDE)
@@ -58,27 +31,19 @@
 
 enum layer_number {
   _QWERTY = 0,
-  _SWE,
-  _SYM,
-  _SYM_KT,
-  _SYS,
-  _NAV,
-  _NUM,
-  _FN,
-  _DBG,
+  _LOWER,
+  _RAISE,
+  _ADJUST,
 };
 
 enum custom_keycodes {
-    CKC_ARW = SAFE_RANGE,
-    CKC_HME,
-    CKC_DUP,
-    CKC_ELD,
-    CKC_ELC,
+    MKO_ARW = SAFE_RANGE,   // ->
+    MKO_ELQ,                // ?:
+    MKO_ELD,                // ?.
     SWE_TGL,
     SWE_AE,
     SWE_OE,
     SWE_AO,
-    CLN_FN
 };
 
 
