@@ -20,8 +20,8 @@ OLED_DRIVER_ENABLE= yes     # OLED display
 AUTO_SHIFT_ENABLE = no
 WPM_ENABLE = no
 TAP_DANCE_ENABLE = no
-COMBO_ENABLE = no
-DYNAMIC_MACRO_ENABLE = yes
+COMBO_ENABLE = yes
+DYNAMIC_MACRO_ENABLE = no
 
 # Do not enable SLEEP_LED_ENABLE. it uses the same timer as BACKLIGHT_ENABLE
 SLEEP_LED_ENABLE = no    # Breathing sleep LED during USB suspend
@@ -32,6 +32,7 @@ SRC +=  ./lib/rgb_state_reader.c \
         ./lib/logo_reader.c \
         ./lib/keylogger.c \
         ./oneshot.c \
+        ./swapper.c \
         # ./lib/mode_icon_reader.c \
         # ./lib/host_led_state_reader.c \
         # ./lib/timelogger.c \
