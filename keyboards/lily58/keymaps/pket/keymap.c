@@ -5,8 +5,6 @@
 
 #define LOWER MO(_LOWER)
 #define RAISE MO(_RAISE)
-#define WORD A(KC_RGHT)
-#define BACK A(KC_LEFT)
 #define ALFRED RGUI(KC_SPC)
 #define ITERM RGUI(KC_ESC)
 
@@ -54,7 +52,9 @@ enum combos {
   K_L_TAB,
   U_I_EQL,
   M_COM_COLN,
+  S_D_PARAN,
   D_F_PARAN,
+  S_D_F_PARAN,
 };
 
 const uint16_t PROGMEM lscln_combo[] = {KC_L, KC_SCLN, COMBO_END};
@@ -62,14 +62,18 @@ const uint16_t PROGMEM jk_combo[] = {KC_J, KC_K, COMBO_END};
 const uint16_t PROGMEM kl_combo[] = {KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM ui_combo[] = {KC_U, KC_I, COMBO_END};
 const uint16_t PROGMEM mcom_combo[] = {KC_M, KC_COMM, COMBO_END};
-const uint16_t PROGMEM paran_combo[] = {KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM sd_paran_combo[] = {KC_S, KC_D, COMBO_END};
+const uint16_t PROGMEM df_paran_combo[] = {KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM sdf_paran_combo[] = {KC_S, KC_D, KC_F, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
   [L_SCLN_BSPC] = COMBO(lscln_combo, KC_BSPC),
   [J_K_ESC] = COMBO(jk_combo, KC_ESC),
   [K_L_TAB] = COMBO(kl_combo, KC_TAB),
   [U_I_EQL] = COMBO(ui_combo, KC_EQL),
-  [D_F_PARAN] = COMBO_ACTION(paran_combo),
+  [S_D_PARAN] = COMBO(sd_paran_combo, KC_LPRN),
+  [D_F_PARAN] = COMBO(df_paran_combo, KC_RPRN),
+  [S_D_F_PARAN] = COMBO_ACTION(sdf_paran_combo),
   [M_COM_COLN] = COMBO(mcom_combo, KC_COLN)
 };
 
@@ -77,16 +81,17 @@ combo_t key_combos[COMBO_COUNT] = {
 // - Shift does not feel intuitive
 // - Backspac on layer works, but would probably work better closer to the index finger
 // - Numbers should probably not be on Adjust layer, needs to be easier to access.
-// - Word and Back not working as expected, at least not in VIM Insert mode
 //
 // Things I like about the new layout:
 // - Having the possibility to use Combos again
 // - Love the Esc combo
 // - The shortcuts for Alfred and iTerm are nice
 // - CMD TAB switcher is also nice
-//
+// 
 // VIM related:
 // - The C highlighting really sucks, try install some plugin for it (like polyglot I think it was called)
+const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
+
   [_QWERTY] = LAYOUT( \
       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_GRV,  \
       XXXXXXX, KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS, \
@@ -98,9 +103,9 @@ combo_t key_combos[COMBO_COUNT] = {
   // Mnemonic for Alfred and ITerm is T for Terminal and G for Goto
   [_LOWER] = LAYOUT( \
       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-      XXXXXXX, KC_ESC,  WORD,    SW_WIN,  _______, ITERM,                      _______, _______, _______, _______, KC_DEL,  XXXXXXX, \
+      XXXXXXX, KC_ESC,  _______, SW_WIN,  _______, ITERM,                      _______, _______, _______, _______, KC_DEL,  XXXXXXX, \
       XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, ALFRED,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_BSPC, XXXXXXX, \
-      XXXXXXX, _______, _______, _______, _______, BACK,    _______,  _______, _______, _______, _______, _______, KC_ENT,  XXXXXXX, \
+      XXXXXXX, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, KC_ENT,  XXXXXXX, \
                                  _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
       ),
 
@@ -180,6 +185,10 @@ bool is_oneshot_ignored_key(uint16_t keycode) {
   }
 }
 
+void suspend_power_down_user(void) {
+    oled_off();
+}
+
 bool sw_win_active = false;
 oneshot_state os_shft_state = os_up_unqueued;
 oneshot_state os_ctrl_state = os_up_unqueued;
@@ -197,15 +206,16 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   update_oneshot(&os_alt_state, KC_LALT, OS_LALT, keycode, record);
   update_oneshot(&os_cmd_state, KC_LGUI, OS_LGUI, keycode, record);
 
-  /* switch (keycode) { */
-  /*   case D_F_PARAN: */
-  /*     if (record->event.pressed) { */
-  /*       tap_code16(KC_LCBR); */
-  /*       tap_code16(KC_ENT); */
-  /*       tap_code16(KC_ENT); */
-  /*       tap_code16(KC_RCBR); */
-  /*       tap_code16(KC_UP); */
-  /*     } */
-//  }
   return true;
+}
+
+void process_combo_event(uint16_t combo_index, bool pressed) {
+  switch(combo_index) {
+    case S_D_F_PARAN:
+      if (pressed) {
+        tap_code16(KC_LPRN);
+        tap_code16(KC_RPRN);
+      }
+      break;
+  }
 }
