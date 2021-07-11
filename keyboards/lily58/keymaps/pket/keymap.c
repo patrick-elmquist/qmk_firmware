@@ -1,7 +1,9 @@
 #include QMK_KEYBOARD_H
 
+#include "keymap.h"
 #include "oneshot.h"
 #include "swapper.h"
+#include "features/casemodes.h"
 
 #define LOWER MO(_LOWER)
 #define RAISE MO(_RAISE)
@@ -44,6 +46,7 @@ enum custom_keycodes {
   OS_LSFT,
 
   SW_WIN,
+  CAPSWRD
 };
 
 enum combos {
@@ -54,7 +57,8 @@ enum combos {
   M_COM_COLN,
   S_D_PARAN,
   D_F_PARAN,
-  S_D_F_PARAN,
+  SPC_R_CBR,
+  SPC_F_PRN
 };
 
 const uint16_t PROGMEM lscln_combo[] = {KC_L, KC_SCLN, COMBO_END};
@@ -63,8 +67,9 @@ const uint16_t PROGMEM kl_combo[] = {KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM ui_combo[] = {KC_U, KC_I, COMBO_END};
 const uint16_t PROGMEM mcom_combo[] = {KC_M, KC_COMM, COMBO_END};
 const uint16_t PROGMEM sd_paran_combo[] = {KC_S, KC_D, COMBO_END};
-const uint16_t PROGMEM df_paran_combo[] = {KC_D, KC_F, COMBO_END};
-const uint16_t PROGMEM sdf_paran_combo[] = {KC_S, KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM df_paran_combo[] = {KC_SPC, KC_F, COMBO_END};
+const uint16_t PROGMEM spc_f_prn[] = {KC_SPC, KC_F, COMBO_END};
+const uint16_t PROGMEM spc_r_cbr[] = {KC_SPC, KC_R, COMBO_END};
 
 combo_t key_combos[COMBO_COUNT] = {
   [L_SCLN_BSPC] = COMBO(lscln_combo, KC_BSPC),
@@ -73,8 +78,10 @@ combo_t key_combos[COMBO_COUNT] = {
   [U_I_EQL] = COMBO(ui_combo, KC_EQL),
   [S_D_PARAN] = COMBO(sd_paran_combo, KC_LPRN),
   [D_F_PARAN] = COMBO(df_paran_combo, KC_RPRN),
-  [S_D_F_PARAN] = COMBO_ACTION(sdf_paran_combo),
-  [M_COM_COLN] = COMBO(mcom_combo, KC_COLN)
+  [M_COM_COLN] = COMBO(mcom_combo, KC_COLN),
+
+  [SPC_F_PRN] = COMBO_ACTION(spc_f_prn),
+  [SPC_R_CBR] = COMBO_ACTION(spc_r_cbr),
 };
 
 // Main gripes with the new layout:
@@ -100,10 +107,10 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                  XXXXXXX, KC_ESC,  LOWER,   KC_SPC,   ENT_SFT, RAISE,   _______, XXXXXXX \
       ),
 
-  // Mnemonic for Alfred and ITerm is T for Terminal and G for Goto
+  // Mnemonic for Alfred and iTerm is T for Terminal and G for Goto
   [_LOWER] = LAYOUT( \
       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-      XXXXXXX, KC_ESC,  _______, SW_WIN,  _______, ITERM,                      _______, _______, _______, _______, KC_DEL,  XXXXXXX, \
+      XXXXXXX, KC_ESC,  _______, SW_WIN,  _______, ITERM,                      _______, CAPSWRD, _______, _______, KC_DEL,  XXXXXXX, \
       XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, ALFRED,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_BSPC, XXXXXXX, \
       XXXXXXX, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, KC_ENT,  XXXXXXX, \
                                  _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
@@ -185,8 +192,75 @@ bool is_oneshot_ignored_key(uint16_t keycode) {
   }
 }
 
-void suspend_power_down_user(void) {
-    oled_off();
+// CAPS_WORD: A "smart" Caps Lock key that only capitalizes the next identifier you type
+// and then toggles off Caps Lock automatically when you're done.
+// Source: https://github.com/urob/qmk_firmware/blob/master/keyboards/planck/keymaps/urob/keymap.c
+void caps_word_enable(void) {
+    caps_word_on = true;
+    if (!(host_keyboard_led_state().caps_lock)) {
+        tap_code(KC_CAPS);
+    }
+}
+
+void caps_word_disable(void) {
+    caps_word_on = false;
+    if (host_keyboard_led_state().caps_lock) {
+        tap_code(KC_CAPS);
+    }
+}
+
+// Used to extract the basic tapping keycode from a dual-role key.
+// Example: GET_TAP_KC(MT(MOD_RSFT, KC_E)) == KC_E
+#define GET_TAP_KC(dual_role_key) dual_role_key & 0xFF
+void process_caps_word(uint16_t keycode, const keyrecord_t *record) {
+    // Update caps word state
+    if (caps_word_on) {
+        switch (keycode) {
+            case QK_MOD_TAP ... QK_MOD_TAP_MAX:
+            case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
+                // Earlier return if this has not been considered tapped yet
+                if (record->tap.count == 0) { return; }
+                // Get the base tapping keycode of a mod- or layer-tap key
+                // keycode = keycode & 0xFF;
+                keycode = GET_TAP_KC(keycode);
+                break;
+            default:
+                break;
+        }
+
+        // TODO this seems like an awesome feature, but it doesn't really work
+        //      with the placement of backspace on the current layout.
+        //      Seems also that the fix I did for continuing on unds breaks it...
+        //      It's perhaps a a bit too simple. Try this one instead:
+        //      https://github.com/mrkskk/qmk_firmware/blob/pr8591onferris/users/mrkskk/casemodes.c
+        // TODO also try out the OSM hack for shift on enter button
+        // TODO also the Callum style modifiers keeps feeling strange, probably should ditch them...
+        //
+        switch (keycode) {
+            // Keycodes to shift
+            case KC_A ... KC_Z:
+                if (record->event.pressed) {
+                    caps_word_enable();
+                }
+            // Keycodes that enable caps word but shouldn't get shifted
+            case KC_MINS:
+            case KC_BSPC:
+            case KC_UNDS:
+            case KC_PIPE:
+            case CAPSWRD:
+                // If chording mods, disable caps word
+                if (record->event.pressed && (get_mods() != MOD_LSFT) && (get_mods() != 0)) {
+                    //caps_word_disable();
+                }
+                break;
+            default:
+                // Any other keycode should automatically disable caps
+                if (record->event.pressed) {
+                    caps_word_disable();
+                }
+                break;
+        }
+    }
 }
 
 bool sw_win_active = false;
@@ -200,22 +274,55 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     set_keylog(keycode, record);
   }
 
+  process_caps_word(keycode, record);
+
   update_swapper(&sw_win_active, KC_LGUI, KC_TAB, SW_WIN, keycode, record);
   update_oneshot(&os_shft_state, KC_LSFT, OS_LSFT, keycode, record);
   update_oneshot(&os_ctrl_state, KC_LCTL, OS_LCTL, keycode, record);
   update_oneshot(&os_alt_state, KC_LALT, OS_LALT, keycode, record);
   update_oneshot(&os_cmd_state, KC_LGUI, OS_LGUI, keycode, record);
 
+
+  switch (keycode) {
+    case CAPSWRD:
+            // Toggle `caps_word_on`
+            if (record->event.pressed) {
+                if (caps_word_on) {
+                    caps_word_disable();
+                    return false;
+                } else {
+                    caps_word_enable();
+                    return false;
+                }
+            }
+            break;
+  }
   return true;
 }
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
+  if (!pressed) return;
+
   switch(combo_index) {
-    case S_D_F_PARAN:
-      if (pressed) {
-        tap_code16(KC_LPRN);
-        tap_code16(KC_RPRN);
-      }
+    case SPC_F_PRN:
+      send_string("()");
+      break;
+    case S_D_PARAN:
+      send_string("(");
+      break;
+    case D_F_PARAN:
+      send_string("()");
+      tap_code16(KC_LEFT);
+      break;
+    case SPC_R_CBR:
+      send_string("{}");
+      tap_code16(KC_LEFT);
       break;
   }
 }
+
+// OLED
+void suspend_power_down_user(void) {
+    oled_off();
+}
+

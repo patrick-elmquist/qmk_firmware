@@ -33,6 +33,7 @@ SRC +=  ./lib/rgb_state_reader.c \
         ./lib/keylogger.c \
         ./oneshot.c \
         ./swapper.c \
+        ./features/casemodes.c \
         # ./lib/mode_icon_reader.c \
         # ./lib/host_led_state_reader.c \
         # ./lib/timelogger.c \

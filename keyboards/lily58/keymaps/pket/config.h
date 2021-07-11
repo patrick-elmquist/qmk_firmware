@@ -29,8 +29,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TAPPING_TERM 200
 //#define TAPPING_TERM_PER_KEY
 #define TAPPING_FORCE_HOLD
+// according to a discussion on discord, TAPPING_TERM_HOLD seems to be the reason
+// for tap toggle not working properly when I tried it...
 
-#define COMBO_COUNT 8
+#define COMBO_COUNT 9
 #define COMBO_TERM 75
+#define COMBO_ALLOW_ACTION_KEYS
 
 #define DISABLE_LEADER
