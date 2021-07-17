@@ -3,6 +3,7 @@
 #include "keymap.h"
 #include "oneshot.h"
 #include "swapper.h"
+#include "oled.h"
 #include "features/casemodes.h"
 
 #define LOWER MO(_LOWER)
@@ -58,6 +59,7 @@ enum combos {
   M_COM_COLN,
   S_D_PARAN,
   D_F_PARAN,
+  S_F_PARAN,
   SPC_R_CBR,
   SPC_F_PRN
 };
@@ -68,7 +70,8 @@ const uint16_t PROGMEM kl_combo[] = {KC_K, KC_L, COMBO_END};
 const uint16_t PROGMEM ui_combo[] = {KC_U, KC_I, COMBO_END};
 const uint16_t PROGMEM mcom_combo[] = {KC_M, KC_COMM, COMBO_END};
 const uint16_t PROGMEM sd_paran_combo[] = {KC_S, KC_D, COMBO_END};
-const uint16_t PROGMEM df_paran_combo[] = {KC_SPC, KC_F, COMBO_END};
+const uint16_t PROGMEM df_paran_combo[] = {KC_D, KC_F, COMBO_END};
+const uint16_t PROGMEM sf_paran_combo[] = {KC_S, KC_F, COMBO_END};
 const uint16_t PROGMEM spc_f_prn[] = {KC_SPC, KC_F, COMBO_END};
 const uint16_t PROGMEM spc_r_cbr[] = {KC_SPC, KC_R, COMBO_END};
 
@@ -81,6 +84,7 @@ combo_t key_combos[COMBO_COUNT] = {
   [D_F_PARAN] = COMBO(df_paran_combo, KC_RPRN),
   [M_COM_COLN] = COMBO(mcom_combo, KC_COLN),
 
+  [D_F_PARAN] = COMBO_ACTION(sf_paran_combo),
   [SPC_F_PRN] = COMBO_ACTION(spc_f_prn),
   [SPC_R_CBR] = COMBO_ACTION(spc_r_cbr),
 };
@@ -145,9 +149,11 @@ layer_state_t layer_state_set_user(layer_state_t state) {
 }
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-  if (!is_keyboard_master())
+  if (is_keyboard_master()) {
+    return OLED_ROTATION_270;
+  } else {
     return OLED_ROTATION_180;
-  return rotation;
+  }
 }
 
 // When you add source files to SRC in rules.mk, you can use functions.
@@ -159,10 +165,12 @@ const char *read_keylogs(void);
 
 void oled_task_user(void) {
   if (is_keyboard_master()) {
-    // If you want to change the display of OLED, you need to change here
-    oled_write_ln(read_layer_state(), false);
-    oled_write_ln(read_keylog(), false);
-    oled_write_ln(read_keylogs(), false);
+    render_empty_line();
+    render_keylock_status(host_keyboard_led_state());
+    render_empty_line();
+    render_mod_status(get_mods());
+    render_empty_line();
+    render_keylogger_status();
   } else {
     oled_write(read_logo(), false);
   }
@@ -225,7 +233,8 @@ oneshot_state os_cmd_state = os_up_unqueued;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
   if (record->event.pressed) {
-    set_keylog(keycode, record);
+    /* set_keylog(keycode, record); */
+    add_keylog(keycode);
   }
 
   update_swapper(&sw_win_active, KC_LGUI, KC_TAB, SW_WIN, keycode, record);
@@ -266,13 +275,10 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
   switch(combo_index) {
     case SPC_F_PRN:
       send_string("()");
-      break;
-    case S_D_PARAN:
-      send_string("(");
-      break;
-    case D_F_PARAN:
-      send_string("()");
       tap_code16(KC_LEFT);
+      break;
+    case S_F_PARAN:
+      send_string("()");
       break;
     case SPC_R_CBR:
       send_string("{}");
