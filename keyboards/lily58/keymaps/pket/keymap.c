@@ -46,7 +46,8 @@ enum custom_keycodes {
   OS_LSFT,
 
   SW_WIN,
-  CAPSWRD
+  CAPSWRD,
+  SNAKEWD
 };
 
 enum combos {
@@ -100,17 +101,17 @@ combo_t key_combos[COMBO_COUNT] = {
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
   [_QWERTY] = LAYOUT( \
-      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, KC_GRV,  \
-      XXXXXXX, KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_MINS, \
-      XXXXXXX, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
-      XXXXXXX, Z_SFT,   KC_X,    KC_C,    KC_V,    KC_B,    KC_LBRC,  KC_RBRC, KC_N,    KC_M,    KC_COMM, KC_DOT,  SLH_SFT, XXXXXXX, \
-                                 XXXXXXX, KC_ESC,  LOWER,   KC_SPC,   ENT_SFT, RAISE,   _______, XXXXXXX \
+      XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+      KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_GRV,  \
+      KC_LCTL, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
+      KC_LSFT, Z_SFT,   KC_X,    KC_C,    KC_V,    KC_B,    KC_LBRC,  KC_RBRC, KC_N,    KC_M,    KC_COMM, KC_DOT,  SLH_SFT, KC_MINS, \
+                                 XXXXXXX, XXXXXXX, LOWER,   KC_SPC,   ENT_SFT, RAISE,   XXXXXXX, XXXXXXX \
       ),
 
   // Mnemonic for Alfred and iTerm is T for Terminal and G for Goto
   [_LOWER] = LAYOUT( \
       XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-      XXXXXXX, KC_ESC,  _______, SW_WIN,  _______, ITERM,                      _______, CAPSWRD, _______, _______, KC_DEL,  XXXXXXX, \
+      XXXXXXX, KC_ESC,  _______, SW_WIN,  _______, ITERM,                      _______, CAPSWRD, SNAKEWD, _______, KC_DEL,  XXXXXXX, \
       XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, ALFRED,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_BSPC, XXXXXXX, \
       XXXXXXX, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, KC_ENT,  XXXXXXX, \
                                  _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
@@ -192,75 +193,28 @@ bool is_oneshot_ignored_key(uint16_t keycode) {
   }
 }
 
-// CAPS_WORD: A "smart" Caps Lock key that only capitalizes the next identifier you type
-// and then toggles off Caps Lock automatically when you're done.
-// Source: https://github.com/urob/qmk_firmware/blob/master/keyboards/planck/keymaps/urob/keymap.c
-void caps_word_enable(void) {
-    caps_word_on = true;
-    if (!(host_keyboard_led_state().caps_lock)) {
-        tap_code(KC_CAPS);
-    }
-}
-
-void caps_word_disable(void) {
-    caps_word_on = false;
-    if (host_keyboard_led_state().caps_lock) {
-        tap_code(KC_CAPS);
-    }
-}
-
-// Used to extract the basic tapping keycode from a dual-role key.
-// Example: GET_TAP_KC(MT(MOD_RSFT, KC_E)) == KC_E
-#define GET_TAP_KC(dual_role_key) dual_role_key & 0xFF
-void process_caps_word(uint16_t keycode, const keyrecord_t *record) {
-    // Update caps word state
-    if (caps_word_on) {
+bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
         switch (keycode) {
-            case QK_MOD_TAP ... QK_MOD_TAP_MAX:
-            case QK_LAYER_TAP ... QK_LAYER_TAP_MAX:
-                // Earlier return if this has not been considered tapped yet
-                if (record->tap.count == 0) { return; }
-                // Get the base tapping keycode of a mod- or layer-tap key
-                // keycode = keycode & 0xFF;
-                keycode = GET_TAP_KC(keycode);
-                break;
-            default:
-                break;
-        }
-
-        // TODO this seems like an awesome feature, but it doesn't really work
-        //      with the placement of backspace on the current layout.
-        //      Seems also that the fix I did for continuing on unds breaks it...
-        //      It's perhaps a a bit too simple. Try this one instead:
-        //      https://github.com/mrkskk/qmk_firmware/blob/pr8591onferris/users/mrkskk/casemodes.c
-        // TODO also try out the OSM hack for shift on enter button
-        // TODO also the Callum style modifiers keeps feeling strange, probably should ditch them...
-        //
-        switch (keycode) {
-            // Keycodes to shift
+            // Keycodes to ignore (don't disable caps word)
             case KC_A ... KC_Z:
-                if (record->event.pressed) {
-                    caps_word_enable();
-                }
-            // Keycodes that enable caps word but shouldn't get shifted
+            case KC_1 ... KC_0:
             case KC_MINS:
-            case KC_BSPC:
             case KC_UNDS:
-            case KC_PIPE:
+            case KC_BSPC:
             case CAPSWRD:
-                // If chording mods, disable caps word
-                if (record->event.pressed && (get_mods() != MOD_LSFT) && (get_mods() != 0)) {
-                    //caps_word_disable();
+            case SNAKEWD:
+                // If mod chording disable the mods
+                if (record->event.pressed && (get_mods() != 0)) {
+                    return true;
                 }
                 break;
             default:
-                // Any other keycode should automatically disable caps
                 if (record->event.pressed) {
-                    caps_word_disable();
+                    return true;
                 }
                 break;
         }
-    }
+        return false;
 }
 
 bool sw_win_active = false;
@@ -274,31 +228,37 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     set_keylog(keycode, record);
   }
 
-  process_caps_word(keycode, record);
-
   update_swapper(&sw_win_active, KC_LGUI, KC_TAB, SW_WIN, keycode, record);
   update_oneshot(&os_shft_state, KC_LSFT, OS_LSFT, keycode, record);
   update_oneshot(&os_ctrl_state, KC_LCTL, OS_LCTL, keycode, record);
   update_oneshot(&os_alt_state, KC_LALT, OS_LALT, keycode, record);
   update_oneshot(&os_cmd_state, KC_LGUI, OS_LGUI, keycode, record);
 
+  if (!process_case_modes(keycode, record)) {
+    return false;
+  }
 
   switch (keycode) {
     case CAPSWRD:
-            // Toggle `caps_word_on`
-            if (record->event.pressed) {
-                if (caps_word_on) {
-                    caps_word_disable();
-                    return false;
-                } else {
-                    caps_word_enable();
-                    return false;
-                }
-            }
-            break;
+      if (record->event.pressed) {
+        // TODO probably need to add SNAKE and CAPS as exceptions to the
+        //      different types of cases so they don't cancel each other
+        //      Also: 
+        //      - Add camelCase 
+        //      - Support BSPC in all cases
+        // I could add a timer and check for long press to turn it on perment
+        toggle_caps_word();
+      }
+      break;
+    case SNAKEWD:
+      if (record->event.pressed) {
+        enable_xcase_with(KC_UNDS);
+      }
+      break;
   }
   return true;
 }
+
 
 void process_combo_event(uint16_t combo_index, bool pressed) {
   if (!pressed) return;
