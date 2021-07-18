@@ -10,4 +10,8 @@ void render_empty_line(void);
 
 void render_keylogger_status(void);
 
+void render_debug_status(void);
+
 void add_keylog(uint16_t keycode);
+
+void add_debug(uint16_t keycode);

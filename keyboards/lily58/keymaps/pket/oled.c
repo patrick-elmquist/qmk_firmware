@@ -28,6 +28,7 @@ void render_mod_status(uint8_t modifiers) {
 #define BLINK_INTERVAL 500
 
 static char     keylog_str[KEYLOG_LEN] = { ' ', ' ', ' ', ' ', ' ', 0};
+static char     debug_msg[KEYLOG_LEN] = { 'D', 'E', 'B', 'U', 'G', 0};
 static uint16_t log_timer              = 0;
 static bool     blink_timeout          = false;
 
@@ -56,7 +57,21 @@ void add_keylog(uint16_t keycode) {
     blink_timeout = false;
 }
 
+void add_debug(uint16_t keycode) {
+    for (uint8_t i = KEYLOG_LEN - 1; i > 0; i--) {
+        debug_msg[i] = debug_msg[i - 1];
+    }
+    if (keycode < 60) {
+        debug_msg[0] = code_to_name[keycode];
+    }
+    debug_msg[KEYLOG_LEN - 1] = 0;
+}
+
 void render_keylogger_status(void) {
     oled_write_P(PSTR("Hist."), false);
     oled_write(keylog_str, false);
+}
+void render_debug_status(void) {
+    oled_write_P(PSTR("Debug"), false);
+    oled_write(debug_msg, false);
 }
