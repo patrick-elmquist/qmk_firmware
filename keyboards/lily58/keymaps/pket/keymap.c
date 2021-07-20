@@ -34,13 +34,6 @@
 #define HME_L LALT_T(KC_L)
 #define HME_SCL RCTL_T(KC_SCLN)
 
-enum layer_number {
-    _QWERTY = 0,
-    _LOWER,
-    _RAISE,
-    _NUM,
-};
-
 enum custom_keycodes {
     OS_LCTL = SAFE_RANGE,
     OS_LALT,
@@ -62,11 +55,11 @@ enum combos {
     S_D_PARAN,
     D_F_PARAN,
     S_F_PARAN,
+    S_D_F_PARAN,
     XC_COPY,
     CV_PASTE,
     XV_CUT,
-    SPC_R_CBR,
-    SPC_F_PRN
+    SPC_R_CBR
 };
 
 const uint16_t PROGMEM lscln_combo[] = {KC_L, KC_SCLN, COMBO_END};
@@ -77,6 +70,7 @@ const uint16_t PROGMEM mcom_combo[] = {KC_M, KC_COMM, COMBO_END};
 const uint16_t PROGMEM sd_paran_combo[] = {KC_S, KC_D, COMBO_END};
 const uint16_t PROGMEM df_paran_combo[] = {KC_D, KC_F, COMBO_END};
 const uint16_t PROGMEM sf_paran_combo[] = {KC_S, KC_F, COMBO_END};
+const uint16_t PROGMEM sdf_paran_combo[] = {KC_S, KC_D, KC_F, COMBO_END};
 const uint16_t PROGMEM xc_copy_combo[] = {KC_X, KC_C, COMBO_END};
 const uint16_t PROGMEM cv_paste_combo[] = {KC_C, KC_V, COMBO_END};
 const uint16_t PROGMEM xv_cut_combo[] = {KC_X, KC_V, COMBO_END};
@@ -93,10 +87,10 @@ combo_t key_combos[COMBO_COUNT] = {
     [M_COM_COLN] = COMBO(mcom_combo, KC_COLN),
 
     [S_F_PARAN] = COMBO_ACTION(sf_paran_combo),
+    [S_D_F_PARAN] = COMBO_ACTION(sdf_paran_combo),
     [XC_COPY] = COMBO_ACTION(xc_copy_combo),
     [CV_PASTE] = COMBO_ACTION(cv_paste_combo),
     [XV_CUT] = COMBO_ACTION(xv_cut_combo),
-    [SPC_F_PRN] = COMBO_ACTION(spc_f_prn),
     [SPC_R_CBR] = COMBO_ACTION(spc_r_cbr),
 };
 
@@ -120,7 +114,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_GRV,  \
             CTL_ESC, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
             KC_LSFT, Z_SFT,   KC_X,    KC_C,    KC_V,    KC_B,    KC_LBRC,  KC_RBRC, KC_N,    KC_M,    KC_COMM, KC_DOT,  SLH_SFT, KC_MINS, \
-            XXXXXXX, XXXXXXX, LOWER,   KC_SPC,   ENT_SFT, RAISE,   XXXXXXX, XXXXXXX \
+                                       XXXXXXX, XXXXXXX, LOWER,   KC_SPC,   ENT_SFT, RAISE,   XXXXXXX, XXXXXXX \
             ),
 
     // Mnemonic for Alfred and iTerm is T for Terminal and G for Goto
@@ -129,7 +123,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             XXXXXXX, KC_ESC,  _______, SW_WIN,  _______, ITERM,                      _______, CAPSWRD, SNAKEWD, CAMELWD, KC_DEL,  XXXXXXX, \
             XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, ALFRED,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_BSPC, XXXXXXX, \
             XXXXXXX, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, KC_ENT,  XXXXXXX, \
-            _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
+                                       _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
             ),
 
     [_RAISE] = LAYOUT( \
@@ -137,7 +131,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             XXXXXXX, _______, KC_EXLM, KC_LCBR, KC_RCBR, KC_PIPE,                    KC_AMPR, KC_EQL,  KC_PLUS, KC_MINS, _______, XXXXXXX, \
             XXXXXXX, _______, _______, KC_LPRN, KC_RPRN, _______,                    KC_COLN, OS_LSFT, OS_LGUI, OS_LALT, OS_LCTL, XXXXXXX, \
             XXXXXXX, _______, _______, KC_LBRC, KC_RBRC, _______, _______,  _______, KC_SLSH, _______, _______, _______, _______, XXXXXXX, \
-            _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
+                                       _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
             ),
 
     // TODO Add a VIM layer toggled by ENTER
@@ -151,7 +145,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
             XXXXXXX, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    XXXXXXX, \
             XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, XXXXXXX,                    XXXXXXX, OS_LSFT, OS_LGUI, OS_LALT, OS_LCTL, XXXXXXX, \
             XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,  _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  XXXXXXX, \
-            _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
+                                       _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
             )
 };
 
@@ -167,23 +161,21 @@ oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     }
 }
 
+uint16_t delimiter = KC_NO; // used to keep track of which mode we are in
+
 // When you add source files to SRC in rules.mk, you can use functions.
-const char *read_layer_state(void);
 const char *read_logo(void);
-void set_keylog(uint16_t keycode, keyrecord_t *record);
-const char *read_keylog(void);
-const char *read_keylogs(void);
 
 void oled_task_user(void) {
     if (is_keyboard_master()) {
         render_empty_line();
-        render_keylock_status(host_keyboard_led_state());
+        render_default_layer_state();
+        render_empty_line();
+        render_case_mode_status(delimiter, caps_word_enabled());
         render_empty_line();
         render_mod_status(get_mods());
         render_empty_line();
         render_keylogger_status();
-        render_empty_line();
-        render_debug_status();
     } else {
         oled_write(read_logo(), false);
     }
@@ -226,11 +218,13 @@ bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
         case SNAKEWD:
             // If mod chording disable the mods
             if (record->event.pressed && (get_mods() != 0)) {
+                delimiter = KC_NO;
                 return true;
             }
             break;
         default:
             if (record->event.pressed) {
+                delimiter = KC_NO;
                 return true;
             }
             break;
@@ -246,17 +240,7 @@ oneshot_state os_cmd_state = os_up_unqueued;
 
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (record->event.pressed) {
-        if (keycode == KC_SPC) {
-            add_debug(KC_SPC);
-            add_debug(KC_SPC);
-            add_debug(KC_SPC);
-            add_debug(KC_SPC);
-            add_debug(KC_SPC);
-        } else {
-            add_debug(KC_R);
-        }
-        /* set_keylog(keycode, record); */
-        add_keylog(keycode);
+        append_keylog(keycode);
     }
 
     update_swapper(&sw_win_active, KC_LGUI, KC_TAB, SW_WIN, keycode, record);
@@ -279,18 +263,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 // I could add a timer and check for long press to turn it on perment
                 // TODO when adding a number layer, make dubble tapping it toggle NUMWORD
                 // TODO figure out how to properly cancel CAPS with ESC and combos
-                // TODO fix the combo term to avoid misfires, NOTE: it seems this is part of the new combos commit...
+                // TODO fix the combo term to avoid misfires
                 toggle_caps_word();
             }
             break;
         case SNAKEWD:
-            if (record->event.pressed) {
-                enable_xcase_with(KC_UNDS);
-            }
-            break;
         case CAMELWD:
             if (record->event.pressed) {
-                enable_xcase_with(OSM(MOD_LSFT));
+                delimiter = keycode == SNAKEWD ? KC_UNDS : OSM(MOD_LSFT);
+                enable_xcase_with(delimiter);
             }
             break;
     }
@@ -301,15 +282,13 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 void process_combo_event(uint16_t combo_index, bool pressed) {
     if (!pressed) return;
 
-    add_debug(KC_C);
-
     switch(combo_index) {
-        case SPC_F_PRN:
-            send_string("()");
-            tap_code16(KC_LEFT);
-            break;
         case S_F_PARAN:
             send_string("()");
+            break;
+        case S_D_F_PARAN:
+            send_string("()");
+            tap_code16(KC_LEFT);
             break;
         case SPC_R_CBR:
             send_string("{}");
@@ -327,7 +306,6 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
     }
 }
 
-// OLED
 void suspend_power_down_user(void) {
     oled_off();
 }

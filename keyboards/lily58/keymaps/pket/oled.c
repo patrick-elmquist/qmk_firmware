@@ -1,17 +1,25 @@
 #include "oled.h"
+#include "keymap.h"
 
 void render_empty_line(void) {
     oled_write_ln("", false);
 }
 
-void render_keylock_status(led_t led_state) {
-    // TODO add support for snake and camel status
-    // TODO remove num and scroll lock, basically no point in having them
-    oled_write_ln_P(PSTR("Lock"), false);
-    oled_write_P(PSTR("N"), led_state.num_lock);
-    oled_write_P(PSTR("C"), led_state.caps_lock);
-    oled_write_P(PSTR("S"), led_state.scroll_lock);
-    oled_write_ln_P(PSTR(" "), false);
+void render_case_mode_status(uint16_t delimiter, bool caps) {
+    oled_write_ln_P(PSTR("Mode"), false);
+    if (delimiter == KC_UNDS) {
+        if (caps) {
+            oled_write_P(PSTR("SN_KE"), false);
+        } else {
+            oled_write_P(PSTR("sn_ke"), false);
+        }
+    } else if (delimiter == OSM(MOD_LSFT)) {
+        oled_write_P(PSTR("cAmEl"), false);
+    } else if (caps) {
+        oled_write_P(PSTR("CAPS "), false);
+    } else {
+        oled_write_P(PSTR("-    "), false);
+    }
 }
 
 void render_mod_status(uint8_t modifiers) {
@@ -28,7 +36,6 @@ void render_mod_status(uint8_t modifiers) {
 #define BLINK_INTERVAL 500
 
 static char     keylog_str[KEYLOG_LEN] = { ' ', ' ', ' ', ' ', ' ', 0};
-static char     debug_msg[KEYLOG_LEN] = { 'D', 'E', 'B', 'U', 'G', 0};
 static uint16_t log_timer              = 0;
 static bool     blink_timeout          = false;
 
@@ -40,7 +47,7 @@ static const char code_to_name[60] = {
     'R', 'E', 'B', 'T', '_', '-', '=', '[', ']', '\\',
     '#', ';', '\'', '`', ',', '.', '/', ' ', ' ', ' '};
 
-void add_keylog(uint16_t keycode) {
+void append_keylog(uint16_t keycode) {
     if ((keycode >= QK_MOD_TAP && keycode <= QK_MOD_TAP_MAX) || (keycode >= QK_LAYER_TAP && keycode <= QK_LAYER_TAP_MAX)) {
         keycode = keycode & 0xFF;
     }
@@ -57,21 +64,36 @@ void add_keylog(uint16_t keycode) {
     blink_timeout = false;
 }
 
-void add_debug(uint16_t keycode) {
-    for (uint8_t i = KEYLOG_LEN - 1; i > 0; i--) {
-        debug_msg[i] = debug_msg[i - 1];
-    }
-    if (keycode < 60) {
-        debug_msg[0] = code_to_name[keycode];
-    }
-    debug_msg[KEYLOG_LEN - 1] = 0;
-}
-
 void render_keylogger_status(void) {
     oled_write_P(PSTR("Hist."), false);
     oled_write(keylog_str, false);
 }
-void render_debug_status(void) {
-    oled_write_P(PSTR("Debug"), false);
-    oled_write(debug_msg, false);
+
+void render_default_layer_state(void) {
+    if (timer_elapsed(log_timer) > BLINK_TIMEOUT) {
+        blink_timeout = true;
+    }
+
+    bool blink = (timer_read() % 1000) < BLINK_INTERVAL || blink_timeout;
+
+    oled_write_P(PSTR("$"), false);
+    switch (get_highest_layer(layer_state)) {
+        case _QWERTY:
+            oled_write_P(blink ? PSTR("_") : PSTR(" "), false);
+            oled_write_P(PSTR("   "), false); 
+            return;
+        case _LOWER:
+            oled_write_P(PSTR("LOW"), false); 
+            break;
+        case _RAISE:
+            oled_write_P(PSTR("RAI"), false);
+            break;
+        case _NUM:
+            oled_write_P(PSTR("NUM"), false);
+            break;
+        default:
+            oled_write_P(PSTR("UDF"), false);
+            break;
+    }
+    oled_write_P(blink ? PSTR("_") : PSTR(" "), false);
 }

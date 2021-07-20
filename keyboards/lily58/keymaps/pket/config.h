@@ -28,8 +28,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // according to a discussion on discord, TAPPING_TERM_HOLD seems to be the reason
 // for tap toggle not working properly when I tried it...
 
+// TODO replace this by defining it in dynamically in code instead
 #define COMBO_COUNT 13
-#define COMBO_TERM 75
+// TODO add combo term per key instead
+#define COMBO_TERM 50
 #define COMBO_ALLOW_ACTION_KEYS
 
 #define DISABLE_LEADER
