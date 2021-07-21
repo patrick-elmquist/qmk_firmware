@@ -23,15 +23,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MASTER_LEFT
 
 #define TAPPING_TERM 200
-//#define TAPPING_TERM_PER_KEY
 #define TAPPING_FORCE_HOLD
 // according to a discussion on discord, TAPPING_TERM_HOLD seems to be the reason
 // for tap toggle not working properly when I tried it...
 
-// TODO replace this by defining it in dynamically in code instead
-#define COMBO_COUNT 13
 // TODO add combo term per key instead
-#define COMBO_TERM 50
+#define COMBO_TERM 40
 #define COMBO_ALLOW_ACTION_KEYS
 
 #define DISABLE_LEADER

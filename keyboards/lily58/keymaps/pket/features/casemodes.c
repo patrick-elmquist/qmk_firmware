@@ -17,7 +17,6 @@
  *       if the default should be used.
  */
 
-
 #ifndef DEFAULT_XCASE_SEPARATOR
 #define DEFAULT_XCASE_SEPARATOR KC_UNDS
 #endif

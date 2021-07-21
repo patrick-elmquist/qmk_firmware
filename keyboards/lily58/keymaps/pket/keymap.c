@@ -38,47 +38,66 @@ enum combos {
     J_K_ESC,
     K_L_TAB,
     U_I_EQL,
-    M_COM_COLN,
-    S_D_PARAN,
-    D_F_PARAN,
-    S_F_PARAN,
-    S_D_F_PARAN,
+
+    S_D_LPRN,
+    D_F_RPRN,
+    S_F_PRN_PAIR_OUT,
+    S_D_F_PRN_PAIR_IN,
+
+    W_E_LCBR,
+    E_R_RCBR,
+    W_R_CBR_PAIR_OUT,
+    W_E_R_CBR_PAIR_IN,
+
     XC_COPY,
     CV_PASTE,
     XV_CUT,
-    SPC_R_CBR
+    COMBO_LENGTH
 };
+uint16_t COMBO_LEN = COMBO_LENGTH;
 
-const uint16_t PROGMEM lscln_combo[] = {KC_L, KC_SCLN, COMBO_END};
-const uint16_t PROGMEM jk_combo[] = {KC_J, KC_K, COMBO_END};
-const uint16_t PROGMEM kl_combo[] = {KC_K, KC_L, COMBO_END};
-const uint16_t PROGMEM ui_combo[] = {KC_U, KC_I, COMBO_END};
-const uint16_t PROGMEM mcom_combo[] = {KC_M, KC_COMM, COMBO_END};
+// LEFT
+// Paran
 const uint16_t PROGMEM sd_paran_combo[] = {KC_S, KC_D, COMBO_END};
 const uint16_t PROGMEM df_paran_combo[] = {KC_D, KC_F, COMBO_END};
 const uint16_t PROGMEM sf_paran_combo[] = {KC_S, KC_F, COMBO_END};
 const uint16_t PROGMEM sdf_paran_combo[] = {KC_S, KC_D, KC_F, COMBO_END};
+// Curly braces
+const uint16_t PROGMEM we_cbr_combo[] = {KC_W, KC_E, COMBO_END};
+const uint16_t PROGMEM er_cbr_combo[] = {KC_E, KC_R, COMBO_END};
+const uint16_t PROGMEM wr_cbr_combo[] = {KC_W, KC_R, COMBO_END};
+const uint16_t PROGMEM wer_cbr_combo[] = {KC_W, KC_E, KC_R, COMBO_END};
+// Copy/Paste/Cut
 const uint16_t PROGMEM xc_copy_combo[] = {KC_X, KC_C, COMBO_END};
 const uint16_t PROGMEM cv_paste_combo[] = {KC_C, KC_V, COMBO_END};
 const uint16_t PROGMEM xv_cut_combo[] = {KC_X, KC_V, COMBO_END};
-const uint16_t PROGMEM spc_f_prn[] = {KC_SPC, KC_F, COMBO_END};
-const uint16_t PROGMEM spc_r_cbr[] = {KC_SPC, KC_R, COMBO_END};
 
-combo_t key_combos[COMBO_COUNT] = {
+// RIGHT
+const uint16_t PROGMEM ui_combo[] = {KC_U, KC_I, COMBO_END};
+// Esc, Tab, Bspc
+const uint16_t PROGMEM jk_combo[] = {KC_J, KC_K, COMBO_END};
+const uint16_t PROGMEM kl_combo[] = {KC_K, KC_L, COMBO_END};
+const uint16_t PROGMEM lscln_combo[] = {KC_L, KC_SCLN, COMBO_END};
+
+combo_t key_combos[] = {
     [L_SCLN_BSPC] = COMBO(lscln_combo, KC_BSPC),
     [J_K_ESC] = COMBO(jk_combo, KC_ESC),
     [K_L_TAB] = COMBO(kl_combo, KC_TAB),
     [U_I_EQL] = COMBO(ui_combo, KC_EQL),
-    [S_D_PARAN] = COMBO(sd_paran_combo, KC_LPRN),
-    [D_F_PARAN] = COMBO(df_paran_combo, KC_RPRN),
-    [M_COM_COLN] = COMBO(mcom_combo, KC_COLN),
 
-    [S_F_PARAN] = COMBO_ACTION(sf_paran_combo),
-    [S_D_F_PARAN] = COMBO_ACTION(sdf_paran_combo),
+    [S_D_LPRN] = COMBO(sd_paran_combo, KC_LPRN),
+    [D_F_RPRN] = COMBO(df_paran_combo, KC_RPRN),
+    [S_F_PRN_PAIR_OUT] = COMBO_ACTION(sf_paran_combo),
+    [S_D_F_PRN_PAIR_IN] = COMBO_ACTION(sdf_paran_combo),
+
+    [W_E_LCBR] = COMBO(we_cbr_combo, KC_LPRN),
+    [E_R_RCBR] = COMBO(er_cbr_combo, KC_RPRN),
+    [W_R_CBR_PAIR_OUT] = COMBO_ACTION(wr_cbr_combo),
+    [W_E_R_CBR_PAIR_IN] = COMBO_ACTION(wer_cbr_combo),
+
     [XC_COPY] = COMBO_ACTION(xc_copy_combo),
     [CV_PASTE] = COMBO_ACTION(cv_paste_combo),
     [XV_CUT] = COMBO_ACTION(xv_cut_combo),
-    [SPC_R_CBR] = COMBO_ACTION(spc_r_cbr),
 };
 
 // Main gripes with the new layout:
@@ -256,19 +275,21 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     return true;
 }
 
-
 void process_combo_event(uint16_t combo_index, bool pressed) {
     if (!pressed) return;
 
     switch(combo_index) {
-        case S_F_PARAN:
+        case S_F_PRN_PAIR_OUT:
             send_string("()");
             break;
-        case S_D_F_PARAN:
+        case S_D_F_PRN_PAIR_IN:
             send_string("()");
             tap_code16(KC_LEFT);
             break;
-        case SPC_R_CBR:
+        case W_R_CBR_PAIR_OUT:
+            send_string("{}");
+            break;
+        case W_E_R_CBR_PAIR_IN:
             send_string("{}");
             tap_code16(KC_LEFT);
             break;
