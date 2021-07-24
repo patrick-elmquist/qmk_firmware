@@ -29,7 +29,8 @@ enum custom_keycodes {
     SW_WIN,
     CAPS,
     CAMEL,
-    SNAKE
+    SNAKE,
+    SNK_SCM
 };
 
 bool caps_word_on;

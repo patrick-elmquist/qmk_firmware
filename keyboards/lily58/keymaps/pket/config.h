@@ -30,5 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // TODO add combo term per key instead
 #define COMBO_TERM 40
 #define COMBO_ALLOW_ACTION_KEYS
+#define COMBO_VARIABLE_LEN
 
 #define DISABLE_LEADER

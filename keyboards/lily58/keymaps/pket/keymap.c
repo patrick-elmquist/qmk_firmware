@@ -1,80 +1,11 @@
 #include QMK_KEYBOARD_H
 
 #include "keymap.h"
+#include "g/keymap_combo.h"
 #include "oneshot.h"
 #include "swapper.h"
 #include "oled.h"
 #include "features/casemodes.h"
-
-enum combos {
-    L_SCLN_BSPC,
-    J_K_ESC,
-    K_L_TAB,
-    U_I_EQL,
-
-    S_D_LPRN,
-    D_F_RPRN,
-    S_F_PRN_PAIR_OUT,
-    S_D_F_PRN_PAIR_IN,
-
-    W_E_LCBR,
-    E_R_RCBR,
-    W_R_CBR_PAIR_OUT,
-    W_E_R_CBR_PAIR_IN,
-
-    ZX_UNDO,
-    XC_COPY,
-    CV_PASTE,
-    XV_CUT,
-    COMBO_LENGTH
-};
-uint16_t COMBO_LEN = COMBO_LENGTH;
-
-// LEFT
-// Paran
-const uint16_t PROGMEM sd_paran_combo[] = {KC_S, KC_D, COMBO_END};
-const uint16_t PROGMEM df_paran_combo[] = {KC_D, KC_F, COMBO_END};
-const uint16_t PROGMEM sf_paran_combo[] = {KC_S, KC_F, COMBO_END};
-const uint16_t PROGMEM sdf_paran_combo[] = {KC_S, KC_D, KC_F, COMBO_END};
-// Curly braces
-const uint16_t PROGMEM we_cbr_combo[] = {KC_W, KC_E, COMBO_END};
-const uint16_t PROGMEM er_cbr_combo[] = {KC_E, KC_R, COMBO_END};
-const uint16_t PROGMEM wr_cbr_combo[] = {KC_W, KC_R, COMBO_END};
-const uint16_t PROGMEM wer_cbr_combo[] = {KC_W, KC_E, KC_R, COMBO_END};
-// Copy/Paste/Cut
-const uint16_t PROGMEM zx_undo_combo[] = {KC_Z, KC_X, COMBO_END};
-const uint16_t PROGMEM xc_copy_combo[] = {KC_X, KC_C, COMBO_END};
-const uint16_t PROGMEM cv_paste_combo[] = {KC_C, KC_V, COMBO_END};
-const uint16_t PROGMEM xv_cut_combo[] = {KC_X, KC_V, COMBO_END};
-
-// RIGHT
-const uint16_t PROGMEM ui_combo[] = {KC_U, KC_I, COMBO_END};
-// Esc, Tab, Bspc
-const uint16_t PROGMEM jk_combo[] = {KC_J, KC_K, COMBO_END};
-const uint16_t PROGMEM kl_combo[] = {KC_K, KC_L, COMBO_END};
-const uint16_t PROGMEM lscln_combo[] = {KC_L, KC_SCLN, COMBO_END};
-
-combo_t key_combos[] = {
-    [L_SCLN_BSPC] = COMBO(lscln_combo, KC_BSPC),
-    [J_K_ESC] = COMBO(jk_combo, KC_ESC),
-    [K_L_TAB] = COMBO(kl_combo, KC_TAB),
-    [U_I_EQL] = COMBO(ui_combo, KC_EQL),
-
-    [S_D_LPRN] = COMBO(sd_paran_combo, KC_LPRN),
-    [D_F_RPRN] = COMBO(df_paran_combo, KC_RPRN),
-    [S_F_PRN_PAIR_OUT] = COMBO_ACTION(sf_paran_combo),
-    [S_D_F_PRN_PAIR_IN] = COMBO_ACTION(sdf_paran_combo),
-
-    [W_E_LCBR] = COMBO(we_cbr_combo, KC_LPRN),
-    [E_R_RCBR] = COMBO(er_cbr_combo, KC_RPRN),
-    [W_R_CBR_PAIR_OUT] = COMBO_ACTION(wr_cbr_combo),
-    [W_E_R_CBR_PAIR_IN] = COMBO_ACTION(wer_cbr_combo),
-
-    [ZX_UNDO] = COMBO(zx_undo_combo, LGUI(KC_Z)),
-    [XC_COPY] = COMBO(xc_copy_combo, LGUI(KC_C)),
-    [CV_PASTE] = COMBO(cv_paste_combo, LGUI(KC_V)),
-    [XV_CUT] = COMBO(xv_cut_combo, LGUI(KC_X)),
-};
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
@@ -247,29 +178,15 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 enable_xcase_with(delimiter);
             }
             break;
+        case SNK_SCM:
+            if (record->event.pressed) {
+                delimiter = KC_UNDS;
+                toggle_caps_word();
+                enable_xcase_with(delimiter);
+            }
+            break;
     }
     return true;
-}
-
-void process_combo_event(uint16_t combo_index, bool pressed) {
-    if (!pressed) return;
-
-    switch(combo_index) {
-        case S_F_PRN_PAIR_OUT:
-            send_string("()");
-            break;
-        case S_D_F_PRN_PAIR_IN:
-            send_string("()");
-            tap_code16(KC_LEFT);
-            break;
-        case W_R_CBR_PAIR_OUT:
-            send_string("{}");
-            break;
-        case W_E_R_CBR_PAIR_IN:
-            send_string("{}");
-            tap_code16(KC_LEFT);
-            break;
-    }
 }
 
 void suspend_power_down_user(void) {
