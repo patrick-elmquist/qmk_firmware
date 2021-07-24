@@ -6,33 +6,6 @@
 #include "oled.h"
 #include "features/casemodes.h"
 
-#define LOWER MO(_LOWER)
-#define RAISE MO(_RAISE)
-#define ALFRED RGUI(KC_SPC)
-#define ITERM RGUI(KC_ESC)
-#define CTL_ESC LCTL_T(KC_ESC)
-
-#define __LOW__ _______
-#define __RAS__ _______
-#define __CTL__ _______
-#define __ALT__ _______
-#define __GUI__ _______
-#define __SFT__ _______
-#define ENT_SFT RSFT_T(KC_ENT)
-#define SLH_SFT RSFT_T(KC_SLSH)
-
-enum custom_keycodes {
-    OS_LCTL = SAFE_RANGE,
-    OS_LALT,
-    OS_LGUI,
-    OS_LSFT,
-
-    SW_WIN,
-    CAPS,
-    CAMEL,
-    SNAKE
-};
-
 enum combos {
     L_SCLN_BSPC,
     J_K_ESC,
@@ -49,6 +22,7 @@ enum combos {
     W_R_CBR_PAIR_OUT,
     W_E_R_CBR_PAIR_IN,
 
+    ZX_UNDO,
     XC_COPY,
     CV_PASTE,
     XV_CUT,
@@ -68,6 +42,7 @@ const uint16_t PROGMEM er_cbr_combo[] = {KC_E, KC_R, COMBO_END};
 const uint16_t PROGMEM wr_cbr_combo[] = {KC_W, KC_R, COMBO_END};
 const uint16_t PROGMEM wer_cbr_combo[] = {KC_W, KC_E, KC_R, COMBO_END};
 // Copy/Paste/Cut
+const uint16_t PROGMEM zx_undo_combo[] = {KC_Z, KC_X, COMBO_END};
 const uint16_t PROGMEM xc_copy_combo[] = {KC_X, KC_C, COMBO_END};
 const uint16_t PROGMEM cv_paste_combo[] = {KC_C, KC_V, COMBO_END};
 const uint16_t PROGMEM xv_cut_combo[] = {KC_X, KC_V, COMBO_END};
@@ -95,45 +70,46 @@ combo_t key_combos[] = {
     [W_R_CBR_PAIR_OUT] = COMBO_ACTION(wr_cbr_combo),
     [W_E_R_CBR_PAIR_IN] = COMBO_ACTION(wer_cbr_combo),
 
-    [XC_COPY] = COMBO_ACTION(xc_copy_combo),
-    [CV_PASTE] = COMBO_ACTION(cv_paste_combo),
-    [XV_CUT] = COMBO_ACTION(xv_cut_combo),
+    [ZX_UNDO] = COMBO(zx_undo_combo, LGUI(KC_Z)),
+    [XC_COPY] = COMBO(xc_copy_combo, LGUI(KC_C)),
+    [CV_PASTE] = COMBO(cv_paste_combo, LGUI(KC_V)),
+    [XV_CUT] = COMBO(xv_cut_combo, LGUI(KC_X)),
 };
 
-// Main gripes with the new layout:
-// - Numbers should probably not be on Adjust layer, needs to be easier to access.
-//
-// Things I like about the new layout:
-// - Having the possibility to use Combos again
-// - Love the Esc combo
-// - The shortcuts for Alfred and iTerm are nice
-// - CMD TAB switcher is also nice
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_QWERTY] = LAYOUT( \
-            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-            KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_GRV,  \
-            CTL_ESC, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
-            KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_LBRC,  KC_RBRC, KC_N,    KC_M,    KC_COMM, KC_DOT,  SLH_SFT, KC_MINS, \
-                                       XXXXXXX, XXXXXXX, LOWER,   KC_SPC,   ENT_SFT, RAISE,   XXXXXXX, XXXXXXX \
-            ),
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+        KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_GRV,  \
+        CTL_ESC, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
+        KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_LBRC,  KC_RBRC, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS, \
+                                   XXXXXXX, XXXXXXX, LOWER,   KC_SPC,   ENT_SFT, RAISE,   XXXXXXX, XXXXXXX \
+        ),
 
     // Mnemonic for Alfred and iTerm is T for Terminal and G for Goto
     [_LOWER] = LAYOUT( \
-            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-            XXXXXXX, KC_ESC,  _______, SW_WIN,  _______, ITERM,                      _______, CAPS,    SNAKE,   CAMEL,   KC_DEL,  XXXXXXX, \
-            XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, ALFRED,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_BSPC, XXXXXXX, \
-            XXXXXXX, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, KC_ENT,  XXXXXXX, \
-                                       _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
-            ),
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+        XXXXXXX, KC_ESC,  _______, SW_WIN,  _______, ITERM,                      _______, CAPS,    SNAKE,   CAMEL,   KC_DEL,  XXXXXXX, \
+        XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, ALFRED,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_BSPC, XXXXXXX, \
+        XXXXXXX, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, KC_ENT,  XXXXXXX, \
+                                   _______, _______, __LOW__, _______,  _______, __RAS__, _______, _______ \
+        ),
 
     [_RAISE] = LAYOUT( \
-            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-            XXXXXXX, _______, KC_EXLM, KC_LCBR, KC_RCBR, KC_PIPE,                    KC_AMPR, KC_EQL,  KC_PLUS, KC_MINS, _______, XXXXXXX, \
-            XXXXXXX, _______, _______, KC_LPRN, KC_RPRN, _______,                    KC_COLN, OS_LSFT, OS_LGUI, OS_LALT, OS_LCTL, XXXXXXX, \
-            XXXXXXX, _______, _______, KC_LBRC, KC_RBRC, _______, _______,  _______, KC_SLSH, _______, _______, _______, _______, XXXXXXX, \
-                                       _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
-            ),
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+        XXXXXXX, _______, KC_EXLM, KC_LCBR, KC_RCBR, KC_PIPE,                    KC_AMPR, KC_EQL,  KC_PLUS, KC_MINS, _______, XXXXXXX, \
+        XXXXXXX, _______, _______, KC_LPRN, KC_RPRN, _______,                    KC_COLN, OS_LSFT, OS_LGUI, OS_LALT, OS_LCTL, XXXXXXX, \
+        XXXXXXX, _______, _______, KC_LBRC, KC_RBRC, _______, _______,  _______, KC_SLSH, _______, _______, _______, _______, XXXXXXX, \
+                                   _______, _______, __LOW__, _______,  _______, __RAS__, _______, _______ \
+        ),
+
+    [_NUM_NEW] = LAYOUT( \
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+        XXXXXXX, G(KC_1), G(KC_2), G(KC_3), G(KC_4), G(KC_5),                    G(KC_6), G(KC_7), G(KC_8), G(KC_9), G(KC_0), XXXXXXX, \
+        XXXXXXX, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    XXXXXXX, \
+        XXXXXXX, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, _______, XXXXXXX, \
+                                   _______, _______, __LOW__, _______,  _______, __RAS__, _______, _______ \
+        ),
 
     // TODO Add a VIM layer toggled by ENTER
     // Add:
@@ -142,12 +118,12 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     // - May possible to include more for navigation, like numbers and d, j, k, y, c
     // - Try to make some best match where as many utilities exist in the same position as on base and sym layers
     [_NUM] = LAYOUT( \
-            XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-            XXXXXXX, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    XXXXXXX, \
-            XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, XXXXXXX,                    XXXXXXX, OS_LSFT, OS_LGUI, OS_LALT, OS_LCTL, XXXXXXX, \
-            XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,  _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  XXXXXXX, \
-                                       _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
-            )
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
+        XXXXXXX, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    XXXXXXX, \
+        XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, XXXXXXX,                    XXXXXXX, OS_LSFT, OS_LGUI, OS_LALT, OS_LCTL, XXXXXXX, \
+        XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,  _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  XXXXXXX, \
+                                   _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
+        )
 };
 
 layer_state_t layer_state_set_user(layer_state_t state) {
@@ -292,15 +268,6 @@ void process_combo_event(uint16_t combo_index, bool pressed) {
         case W_E_R_CBR_PAIR_IN:
             send_string("{}");
             tap_code16(KC_LEFT);
-            break;
-        case XC_COPY:
-            tap_code16(RGUI(KC_C));
-            break;
-        case CV_PASTE:
-            tap_code16(RGUI(KC_V));
-            break;
-        case XV_CUT:
-            tap_code16(RGUI(KC_X));
             break;
     }
 }
