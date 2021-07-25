@@ -29,7 +29,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // TODO add combo term per key instead
 #define COMBO_TERM 40
-#define COMBO_ALLOW_ACTION_KEYS
-#define COMBO_VARIABLE_LEN
+#define COMBO_TERM_PER_COMBO
 
+#define COMBO_ONLY_FROM_LAYER 0
+
+// #define COMBO_ALLOW_ACTION_KEYS
+// #define COMBO_VARIABLE_LEN
+
+// Should reduce the total firmware footprint according to some blog post
 #define DISABLE_LEADER

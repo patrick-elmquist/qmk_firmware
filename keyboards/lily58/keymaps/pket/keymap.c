@@ -38,7 +38,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
         XXXXXXX, G(KC_1), G(KC_2), G(KC_3), G(KC_4), G(KC_5),                    G(KC_6), G(KC_7), G(KC_8), G(KC_9), G(KC_0), XXXXXXX, \
         XXXXXXX, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    XXXXXXX, \
-        XXXXXXX, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, _______, XXXXXXX, \
+        XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,  _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  XXXXXXX, \
                                    _______, _______, __LOW__, _______,  _______, __RAS__, _______, _______ \
         ),
 
@@ -56,6 +56,45 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                    _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
         )
 };
+
+static uint16_t non_combo_input_timer = 0;
+
+uint16_t get_combo_term(uint16_t index, combo_t *combo) {
+    switch (index) {
+        case LCBR:
+        case RCBR:
+        case CBR_PAIR:
+
+        case LPRN:
+        case RPRN:
+        case PRN_PAIR:
+
+        case COPY:
+        case PASTE:
+        case CUT:
+        case UNDO:
+
+        case CAPS_WORD:
+        case SNAKE_WORD:
+
+        case TAB:
+            return timer_elapsed(non_combo_input_timer) > 300 ? 30 : 5;
+
+        // Unlikely bigram, more lenient
+        case ESC:
+        case BSPC:
+
+        // Three key combos, make it easier
+        case PASTE_SFT:
+        case SNAKE_SCREAM:
+        case PRN_PAIR_IN:
+        case CBR_PAIR_IN:
+            return 40;
+
+    }
+
+    return COMBO_TERM;
+}
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, _LOWER, _RAISE, _NUM);
@@ -160,6 +199,8 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     if (!process_case_modes(keycode, record)) {
         return false;
     }
+
+    non_combo_input_timer = timer_read();
 
     switch (keycode) {
         case CAPS:

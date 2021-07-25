@@ -83,10 +83,10 @@ void render_default_layer_state(void) {
             oled_write_P(PSTR("   "), false); 
             return;
         case _LOWER:
-            oled_write_P(PSTR("LOW"), false); 
+            oled_write_P(PSTR("NAV"), false); 
             break;
         case _RAISE:
-            oled_write_P(PSTR("RAI"), false);
+            oled_write_P(PSTR("SYM"), false);
             break;
         case _NUM:
             oled_write_P(PSTR("NUM"), false);
