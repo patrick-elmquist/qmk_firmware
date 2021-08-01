@@ -16,8 +16,7 @@ enum layer_number {
     _QWERTY = 0,
     _LOWER,
     _RAISE,
-    _NUM,
-    _NUM_NEW,
+    _ADJUST
 };
 
 enum custom_keycodes {
@@ -30,7 +29,11 @@ enum custom_keycodes {
     CAPS,
     CAMEL,
     SNAKE,
-    SNK_SCM
+    SNK_SCM,
+
+    SE_AO,
+    SE_AE,
+    SE_OE
 };
 
 bool caps_word_on;

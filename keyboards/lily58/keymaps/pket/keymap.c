@@ -1,5 +1,6 @@
 #include QMK_KEYBOARD_H
-
+#include <stdio.h>
+#include <string.h>
 #include "keymap.h"
 #include "g/keymap_combo.h"
 #include "oneshot.h"
@@ -7,6 +8,20 @@
 #include "oled.h"
 #include "features/casemodes.h"
 
+bool sw_win_active = false;
+oneshot_state os_shft_state = os_up_unqueued;
+oneshot_state os_ctrl_state = os_up_unqueued;
+oneshot_state os_alt_state = os_up_unqueued;
+oneshot_state os_cmd_state = os_up_unqueued;
+
+static uint16_t non_combo_input_timer = 0;
+static uint16_t delimiter = KC_NO; // used to keep track of which mode we are in
+
+// TODO move enter and change thumb shift to one shot and perhaps toggle Word cap on double tap
+// TODO update the combo term since io and er seems to misfire
+// TODO can I solve the issues with CMD (SFT) + N by having OSM CMD and SFT on SPC and ENT
+// TODO would it be nice to move enter to a layer or combo and use ENT as OS SFT instead of having to press it
+//      perhaps a follow up to the above could be to toggle CAPS Word if pressing the ENT OSM twice
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_QWERTY] = LAYOUT( \
@@ -17,101 +32,120 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
                                    XXXXXXX, XXXXXXX, LOWER,   KC_SPC,   ENT_SFT, RAISE,   XXXXXXX, XXXXXXX \
         ),
 
-    // Mnemonic for Alfred and iTerm is T for Terminal and G for Goto
+    // Mnemonic for Alfred and iTerm is T for Terminal and G for Goto. N is for Newline
     [_LOWER] = LAYOUT( \
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-        XXXXXXX, KC_ESC,  _______, SW_WIN,  _______, ITERM,                      _______, CAPS,    SNAKE,   CAMEL,   KC_DEL,  XXXXXXX, \
+        XXXXXXX, KC_ESC,  XXXXXXX, SW_WIN,  XXXXXXX, ITERM,                      XXXXXXX, CAPS,    SNAKE,   CAMEL,   KC_DEL,  XXXXXXX, \
         XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, ALFRED,                     KC_LEFT, KC_DOWN, KC_UP,   KC_RGHT, KC_BSPC, XXXXXXX, \
-        XXXXXXX, _______, _______, _______, _______, _______, _______,  _______, _______, _______, _______, _______, KC_ENT,  XXXXXXX, \
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,  _______, KC_ENT,  XXXXXXX, XXXXXXX, XXXXXXX, KC_ENT,  XXXXXXX, \
                                    _______, _______, __LOW__, _______,  _______, __RAS__, _______, _______ \
         ),
 
     [_RAISE] = LAYOUT( \
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-        XXXXXXX, _______, KC_EXLM, KC_LCBR, KC_RCBR, KC_PIPE,                    KC_AMPR, KC_EQL,  KC_PLUS, KC_MINS, _______, XXXXXXX, \
-        XXXXXXX, _______, _______, KC_LPRN, KC_RPRN, _______,                    KC_COLN, OS_LSFT, OS_LGUI, OS_LALT, OS_LCTL, XXXXXXX, \
-        XXXXXXX, _______, _______, KC_LBRC, KC_RBRC, _______, _______,  _______, KC_SLSH, _______, _______, _______, _______, XXXXXXX, \
+        XXXXXXX, KC_EXLM, KC_AT,   KC_HASH, KC_DLR,  KC_PERC,                    KC_CIRC, KC_AMPR, KC_ASTR, KC_LCBR, KC_RCBR, XXXXXXX, \
+        XXXXXXX, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    XXXXXXX, \
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, _______,  _______, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
                                    _______, _______, __LOW__, _______,  _______, __RAS__, _______, _______ \
         ),
 
-    [_NUM_NEW] = LAYOUT( \
+    [_ADJUST] = LAYOUT( \
         XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
         XXXXXXX, G(KC_1), G(KC_2), G(KC_3), G(KC_4), G(KC_5),                    G(KC_6), G(KC_7), G(KC_8), G(KC_9), G(KC_0), XXXXXXX, \
-        XXXXXXX, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    XXXXXXX, \
+        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    KC_MINS, KC_EQL,  KC_PLUS, XXXXXXX, XXXXXXX, XXXXXXX, \
         XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,  _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  XXXXXXX, \
                                    _______, _______, __LOW__, _______,  _______, __RAS__, _______, _______ \
-        ),
-
-    // TODO Add a VIM layer toggled by ENTER
-    // Add:
-    // - KC_COLN and KC_SLSH on right index
-    // - Perhaps add ?, # and * for easy access to navigate
-    // - May possible to include more for navigation, like numbers and d, j, k, y, c
-    // - Try to make some best match where as many utilities exist in the same position as on base and sym layers
-    [_NUM] = LAYOUT( \
-        XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX,                    XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, XXXXXXX, \
-        XXXXXXX, KC_1,    KC_2,    KC_3,    KC_4,    KC_5,                       KC_6,    KC_7,    KC_8,    KC_9,    KC_0,    XXXXXXX, \
-        XXXXXXX, OS_LCTL, OS_LALT, OS_LGUI, OS_LSFT, XXXXXXX,                    XXXXXXX, OS_LSFT, OS_LGUI, OS_LALT, OS_LCTL, XXXXXXX, \
-        XXXXXXX, KC_F1,   KC_F2,   KC_F3,   KC_F4,   KC_F5,   _______,  _______, KC_F6,   KC_F7,   KC_F8,   KC_F9,   KC_F10,  XXXXXXX, \
-                                   _______, _______, __LOW__, _______,  KC_BSPC, __RAS__, _______, _______ \
         )
 };
 
-static uint16_t non_combo_input_timer = 0;
-
+static char     str[6] = { ' ', ' ', ' ', ' ', ' ', 0};
+static uint16_t combo_term = 0;
 uint16_t get_combo_term(uint16_t index, combo_t *combo) {
+    str[0] = ' ';
+    str[1] = ' ';
+    str[2] = ' ';
+    str[3] = ' ';
+    str[4] = ' ';
+    str[5] = 0;
+
+    uint16_t term;
     switch (index) {
-        case LCBR:
-        case RCBR:
-        case CBR_PAIR:
+        case WE_LCBR:
+        case ER_RCBR:
+        case WR_CBR_PAIR:
 
-        case LPRN:
-        case RPRN:
-        case PRN_PAIR:
+        case SD_LPRN:
+        case DF_RPRN:
+        case SF_PRN_PAIR:
 
-        case COPY:
-        case PASTE:
-        case CUT:
-        case UNDO:
+        case XC_COPY:
+        case CV_PASTE:
+        case XV_CUT:
+        case ZX_UNDO:
 
-        case CAPS_WORD:
-        case SNAKE_WORD:
+        case LSCLN_BSPC:
 
-        case TAB:
-            return timer_elapsed(non_combo_input_timer) > 300 ? 30 : 5;
+        case XCV_PASTE_SFT:
+        case WER_CBR_PAIR_IN:
+        case SDF_PRN_PAIR_IN:
+            
+        case KL_TAB:
+            combo_term = timer_elapsed(non_combo_input_timer) > 300 ? 1 : 2;
+            term = timer_elapsed(non_combo_input_timer) > 300 ? 30 : 5;
+            break;
 
-        // Unlikely bigram, more lenient
-        case ESC:
-        case BSPC:
+        case JK_ESC:
+        case UIO_SNAKE_SCREAM:
+        case UI_CAPS_WORD:
+        case IO_SNAKE_WORD:
+            combo_term = 3;
+            term = 20;
+            break;
 
-        // Three key combos, make it easier
-        case PASTE_SFT:
-        case SNAKE_SCREAM:
-        case PRN_PAIR_IN:
-        case CBR_PAIR_IN:
-            return 40;
-
+        default:
+            combo_term = 4;
+            term = 35;
+            break;
     }
 
-    return COMBO_TERM;
+    sprintf(str, "%5u", term);
+    str[0] = combo_term + '0';
+    return term;
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
-    return update_tri_layer_state(state, _LOWER, _RAISE, _NUM);
+    return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
 }
 
 oled_rotation_t oled_init_user(oled_rotation_t rotation) {
     if (is_keyboard_master()) {
         return OLED_ROTATION_270;
     } else {
-        return OLED_ROTATION_180;
+        return OLED_ROTATION_270;
+        // return OLED_ROTATION_180;
     }
 }
 
-uint16_t delimiter = KC_NO; // used to keep track of which mode we are in
+void render_mod_gui(uint8_t mods) {
+    static const char PROGMEM gui_icon[] = {
+        ' ', 0x80, 0x81, 0x82, 0x83,
+        ' ', 0xa0, 0xa1, 0xa2, 0xa3,
+        ' ', 0xc0, 0xc1, 0xc2, 0xc3,
+        0
+    };
+    if (mods & MOD_MASK_CTRL) {
+        oled_write_P(gui_icon, false);
+    } else {
+        oled_write_ln("", false);
+        oled_write_ln("", false);
+        oled_write_ln("", false);
+    }
+}
 
-// When you add source files to SRC in rules.mk, you can use functions.
-const char *read_logo(void);
+void render_modifiers_status(void) {
+    uint8_t modifiers = get_mods() | get_oneshot_mods();
+    render_mod_gui(modifiers);
+}
 
 void oled_task_user(void) {
     if (is_keyboard_master()) {
@@ -123,8 +157,15 @@ void oled_task_user(void) {
         render_mod_status(get_mods());
         render_empty_line();
         render_keylogger_status();
+
+        // Used for testing/debugging combo terms
+        render_empty_line();
+        oled_write_P(PSTR("Combo"), false);
+        oled_write_ln(str, false);
     } else {
-        oled_write(read_logo(), false);
+        // Add custom mods code here, this is for now broken
+        render_empty_line();
+        render_modifiers_status();
     }
 }
 
@@ -162,6 +203,7 @@ bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
         case KC_UNDS:
         case KC_BSPC:
         case CAPS:
+        case SNK_SCM:
         case SNAKE:
             // If mod chording disable the mods
             if (record->event.pressed && (get_mods() != 0)) {
@@ -179,18 +221,9 @@ bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
     return false;
 }
 
-bool sw_win_active = false;
-oneshot_state os_shft_state = os_up_unqueued;
-oneshot_state os_ctrl_state = os_up_unqueued;
-oneshot_state os_alt_state = os_up_unqueued;
-oneshot_state os_cmd_state = os_up_unqueued;
-
 bool process_record_user(uint16_t keycode, keyrecord_t *record) {
-    if (record->event.pressed) {
-        append_keylog(keycode);
-    }
-
     update_swapper(&sw_win_active, KC_LGUI, KC_TAB, SW_WIN, keycode, record);
+    
     update_oneshot(&os_shft_state, KC_LSFT, OS_LSFT, keycode, record);
     update_oneshot(&os_ctrl_state, KC_LCTL, OS_LCTL, keycode, record);
     update_oneshot(&os_alt_state, KC_LALT, OS_LALT, keycode, record);
@@ -202,7 +235,29 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
 
     non_combo_input_timer = timer_read();
 
+    if (record->event.pressed) {
+        append_keylog(keycode);
+    }
+
+    // TODO add the swe combo keys
     switch (keycode) {
+        case SE_AO:
+            if (record->event.pressed) {
+                tap_code16(A(KC_A));
+            }
+            break;
+        case SE_AE:
+        case SE_OE:
+            if (record->event.pressed) {
+                uint8_t mod_state = get_mods();
+                if (mod_state & MOD_MASK_SHIFT) {
+                    del_mods(MOD_MASK_SHIFT);
+                } 
+                tap_code16(A(KC_U));
+                set_mods(mod_state);
+                tap_code16(keycode == SE_AE ? KC_A : KC_O);
+            }
+            break;
         case CAPS:
             if (record->event.pressed) {
                 // TODO
@@ -215,15 +270,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case SNAKE:
         case CAMEL:
             if (record->event.pressed) {
-                delimiter = keycode == SNAKE ? KC_UNDS : OSM(MOD_LSFT);
-                enable_xcase_with(delimiter);
+                if (delimiter != KC_NO) {
+                    disable_xcase();
+                    delimiter = KC_NO;
+                } else {
+                    delimiter = keycode == SNAKE ? KC_UNDS : OSM(MOD_LSFT);
+                    enable_xcase_with(delimiter);
+                }
             }
             break;
         case SNK_SCM:
             if (record->event.pressed) {
-                delimiter = KC_UNDS;
-                toggle_caps_word();
-                enable_xcase_with(delimiter);
+                if (delimiter != KC_NO) {
+                    disable_xcase();
+                    disable_caps_word();
+                    delimiter = KC_NO;
+                } else {
+                    delimiter = KC_UNDS;
+                    enable_caps_word();
+                    enable_xcase_with(delimiter);
+                }
             }
             break;
     }

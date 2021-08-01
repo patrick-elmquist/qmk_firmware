@@ -22,13 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define MASTER_LEFT
 
+#define SPLIT_MODS_ENABLE
+
 #define TAPPING_TERM 200
 #define TAPPING_FORCE_HOLD
 // according to a discussion on discord, TAPPING_TERM_HOLD seems to be the reason
 // for tap toggle not working properly when I tried it...
 
-// TODO add combo term per key instead
-#define COMBO_TERM 40
+#define COMBO_TERM 35
 #define COMBO_TERM_PER_COMBO
 
 #define COMBO_ONLY_FROM_LAYER 0
@@ -38,3 +39,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Should reduce the total firmware footprint according to some blog post
 #define DISABLE_LEADER
+
+#ifdef OLED_FONT_H
+    #undef OLED_FONT_H
+#endif
+#define OLED_FONT_H "keyboards/lily58/keymaps/pket/glcdfont_new.c"

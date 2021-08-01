@@ -1,36 +1,6 @@
 #include "oled.h"
 #include "keymap.h"
 
-void render_empty_line(void) {
-    oled_write_ln("", false);
-}
-
-void render_case_mode_status(uint16_t delimiter, bool caps) {
-    oled_write_ln_P(PSTR("Mode"), false);
-    if (delimiter == KC_UNDS) {
-        if (caps) {
-            oled_write_P(PSTR("SN_KE"), false);
-        } else {
-            oled_write_P(PSTR("sn_ke"), false);
-        }
-    } else if (delimiter == OSM(MOD_LSFT)) {
-        oled_write_P(PSTR("cAmEl"), false);
-    } else if (caps) {
-        oled_write_P(PSTR("CAPS "), false);
-    } else {
-        oled_write_P(PSTR("-    "), false);
-    }
-}
-
-void render_mod_status(uint8_t modifiers) {
-    oled_write_ln_P(PSTR("Mods"), false);
-    oled_write_P(PSTR("C"), (modifiers & MOD_MASK_CTRL));
-    oled_write_P(PSTR("A"), (modifiers & MOD_MASK_ALT));
-    oled_write_P(PSTR("G"), (modifiers & MOD_MASK_GUI));
-    oled_write_P(PSTR("S"), (modifiers & MOD_MASK_SHIFT));
-    oled_write_P(PSTR(" "), false);
-}
-
 #define KEYLOG_LEN 6
 #define BLINK_TIMEOUT 10000
 #define BLINK_INTERVAL 500
@@ -45,7 +15,71 @@ static const char code_to_name[60] = {
     'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
     '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
     'R', 'E', 'B', 'T', '_', '-', '=', '[', ']', '\\',
-    '#', ';', '\'', '`', ',', '.', '/', ' ', ' ', ' '};
+    '#', ';', '\'', '`', ',', '.', '/', ' ', ' ', ' '
+};
+
+void render_empty_line(void) {
+    oled_write_ln_P(PSTR(""), false);
+}
+
+void render_case_mode_status(uint16_t delimiter, bool caps) {
+    oled_write_ln_P(PSTR("Case"), false);
+    if (delimiter == KC_UNDS) {
+        if (caps) {
+            oled_write_P(PSTR("SNAKE"), false);
+        } else {
+            oled_write_P(PSTR("snake"), false);
+        }
+    } else if (delimiter == OSM(MOD_LSFT)) {
+        oled_write_P(PSTR("cAmEl"), false);
+    } else if (caps) {
+        oled_write_P(PSTR("UPPER"), false);
+    } else {
+        oled_write_P(PSTR("lower"), false);
+    }
+}
+
+void render_mod_status(uint8_t modifiers) {
+    oled_write_ln_P(PSTR("Mods"), false);
+    oled_write_P(PSTR("C"), (modifiers & MOD_MASK_CTRL));
+    oled_write_P(PSTR("A"), (modifiers & MOD_MASK_ALT));
+    oled_write_P(PSTR("G"), (modifiers & MOD_MASK_GUI));
+    oled_write_P(PSTR("S"), (modifiers & MOD_MASK_SHIFT));
+    oled_write_P(PSTR(" "), false);
+}
+
+void render_keylogger_status(void) {
+    oled_write_P(PSTR("Hist."), false);
+    oled_write(keylog_str, false);
+}
+
+void render_default_layer_state(void) {
+    if (timer_elapsed(log_timer) > BLINK_TIMEOUT) {
+        blink_timeout = true;
+    }
+
+    bool blink = (timer_read() % 1000) < BLINK_INTERVAL || blink_timeout;
+
+    oled_write_P(PSTR("$"), false);
+    switch (get_highest_layer(layer_state)) {
+        case _QWERTY:
+            oled_write_P(blink ? PSTR("_\n") : PSTR("\n"), false);
+            return;
+        case _LOWER:
+            oled_write_P(PSTR("LOW"), false);
+            break;
+        case _RAISE:
+            oled_write_P(PSTR("RAI"), false);
+            break;
+        case _ADJUST:
+            oled_write_P(PSTR("ADJ"), false);
+            break;
+        default:
+            oled_write_P(PSTR("-?-"), false);
+            break;
+    }
+    oled_write_P(blink ? PSTR("_") : PSTR(" "), false);
+}
 
 void append_keylog(uint16_t keycode) {
     if ((keycode >= QK_MOD_TAP && keycode <= QK_MOD_TAP_MAX) || (keycode >= QK_LAYER_TAP && keycode <= QK_LAYER_TAP_MAX)) {
@@ -64,36 +98,3 @@ void append_keylog(uint16_t keycode) {
     blink_timeout = false;
 }
 
-void render_keylogger_status(void) {
-    oled_write_P(PSTR("Hist."), false);
-    oled_write(keylog_str, false);
-}
-
-void render_default_layer_state(void) {
-    if (timer_elapsed(log_timer) > BLINK_TIMEOUT) {
-        blink_timeout = true;
-    }
-
-    bool blink = (timer_read() % 1000) < BLINK_INTERVAL || blink_timeout;
-
-    oled_write_P(PSTR("$"), false);
-    switch (get_highest_layer(layer_state)) {
-        case _QWERTY:
-            oled_write_P(blink ? PSTR("_") : PSTR(" "), false);
-            oled_write_P(PSTR("   "), false); 
-            return;
-        case _LOWER:
-            oled_write_P(PSTR("NAV"), false); 
-            break;
-        case _RAISE:
-            oled_write_P(PSTR("SYM"), false);
-            break;
-        case _NUM:
-            oled_write_P(PSTR("NUM"), false);
-            break;
-        default:
-            oled_write_P(PSTR("UDF"), false);
-            break;
-    }
-    oled_write_P(blink ? PSTR("_") : PSTR(" "), false);
-}
