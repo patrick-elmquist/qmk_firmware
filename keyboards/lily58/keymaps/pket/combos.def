@@ -38,7 +38,10 @@ COMB(JK_ESC,             KC_ESC,               KC_J, KC_K)
 COMB(KL_TAB,             KC_TAB,               KC_K, KC_L)
 COMB(LSCLN_BSPC,         KC_BSPC,              KC_L, KC_SCLN)
 
+// ==========
 // SWE
+// ==========
+
 COMB(SWE_AO,             SE_AO,                KC_A, KC_O)
 COMB(SWE_AE,             SE_AE,                KC_A, KC_E)
 COMB(SWE_OE,             SE_OE,                KC_O, KC_E)

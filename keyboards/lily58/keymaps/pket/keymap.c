@@ -1,6 +1,5 @@
 #include QMK_KEYBOARD_H
-#include <stdio.h>
-#include <string.h>
+
 #include "keymap.h"
 #include "g/keymap_combo.h"
 #include "oneshot.h"
@@ -58,13 +57,6 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 };
 
 uint16_t get_combo_term(uint16_t index, combo_t *combo) {
-    // str[0] = ' ';
-    // str[1] = ' ';
-    // str[2] = ' ';
-    // str[3] = ' ';
-    // str[4] = ' ';
-    // str[5] = 0;
-
     char id;
     uint16_t term;
     switch (index) {
@@ -180,7 +172,6 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         append_keylog(keycode);
     }
 
-    // TODO add the swe combo keys
     switch (keycode) {
         case SE_AO:
             if (record->event.pressed) {

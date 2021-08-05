@@ -132,7 +132,7 @@ void render_modifier_status(void) {
     render_mod_ctrl(order++, modifiers);
 }
 
-void render_combo_status() {
+void render_combo_status(void) {
     oled_write_P(PSTR("Combo"), false);
     oled_write_ln(combo_str, false);
 }
