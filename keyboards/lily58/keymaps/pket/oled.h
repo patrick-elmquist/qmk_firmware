@@ -17,6 +17,11 @@ void render_keylogger_status(void);
 // Render the layer status (2 lines)
 void render_default_layer_state(void);
 
+// Render large modifier icons 
+void render_modifier_status(void);
+
 // Append a keycode to the key log
 void append_keylog(uint16_t keycode);
 
+// Update the combo status
+void update_combo_status(uint16_t combo_term, char id);

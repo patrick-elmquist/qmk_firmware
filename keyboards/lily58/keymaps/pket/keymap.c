@@ -15,7 +15,6 @@ oneshot_state os_alt_state = os_up_unqueued;
 oneshot_state os_cmd_state = os_up_unqueued;
 
 static uint16_t non_combo_input_timer = 0;
-static uint16_t delimiter = KC_NO; // used to keep track of which mode we are in
 
 // TODO move enter and change thumb shift to one shot and perhaps toggle Word cap on double tap
 // TODO update the combo term since io and er seems to misfire
@@ -58,16 +57,15 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         )
 };
 
-static char     str[6] = { ' ', ' ', ' ', ' ', ' ', 0};
-static uint16_t combo_term = 0;
 uint16_t get_combo_term(uint16_t index, combo_t *combo) {
-    str[0] = ' ';
-    str[1] = ' ';
-    str[2] = ' ';
-    str[3] = ' ';
-    str[4] = ' ';
-    str[5] = 0;
+    // str[0] = ' ';
+    // str[1] = ' ';
+    // str[2] = ' ';
+    // str[3] = ' ';
+    // str[4] = ' ';
+    // str[5] = 0;
 
+    char id;
     uint16_t term;
     switch (index) {
         case WE_LCBR:
@@ -88,85 +86,30 @@ uint16_t get_combo_term(uint16_t index, combo_t *combo) {
         case XCV_PASTE_SFT:
         case WER_CBR_PAIR_IN:
         case SDF_PRN_PAIR_IN:
-            
-        case KL_TAB:
-            combo_term = timer_elapsed(non_combo_input_timer) > 300 ? 1 : 2;
+            id = timer_elapsed(non_combo_input_timer) > 300 ? '1' : '2';
             term = timer_elapsed(non_combo_input_timer) > 300 ? 30 : 5;
             break;
 
-        case JK_ESC:
         case UIO_SNAKE_SCREAM:
         case UI_CAPS_WORD:
         case IO_SNAKE_WORD:
-            combo_term = 3;
-            term = 20;
+            id = '3';
+            term = 25;
             break;
 
+        case KL_TAB:
+        case JK_ESC:
         default:
-            combo_term = 4;
+            id = '4';
             term = 35;
             break;
     }
-
-    sprintf(str, "%5u", term);
-    str[0] = combo_term + '0';
+    update_combo_status(term, id);
     return term;
 }
 
 layer_state_t layer_state_set_user(layer_state_t state) {
     return update_tri_layer_state(state, _LOWER, _RAISE, _ADJUST);
-}
-
-oled_rotation_t oled_init_user(oled_rotation_t rotation) {
-    if (is_keyboard_master()) {
-        return OLED_ROTATION_270;
-    } else {
-        return OLED_ROTATION_270;
-        // return OLED_ROTATION_180;
-    }
-}
-
-void render_mod_gui(uint8_t mods) {
-    static const char PROGMEM gui_icon[] = {
-        ' ', 0x80, 0x81, 0x82, 0x83,
-        ' ', 0xa0, 0xa1, 0xa2, 0xa3,
-        ' ', 0xc0, 0xc1, 0xc2, 0xc3,
-        0
-    };
-    if (mods & MOD_MASK_CTRL) {
-        oled_write_P(gui_icon, false);
-    } else {
-        oled_write_ln("", false);
-        oled_write_ln("", false);
-        oled_write_ln("", false);
-    }
-}
-
-void render_modifiers_status(void) {
-    uint8_t modifiers = get_mods() | get_oneshot_mods();
-    render_mod_gui(modifiers);
-}
-
-void oled_task_user(void) {
-    if (is_keyboard_master()) {
-        render_empty_line();
-        render_default_layer_state();
-        render_empty_line();
-        render_case_mode_status(delimiter, caps_word_enabled());
-        render_empty_line();
-        render_mod_status(get_mods());
-        render_empty_line();
-        render_keylogger_status();
-
-        // Used for testing/debugging combo terms
-        render_empty_line();
-        oled_write_P(PSTR("Combo"), false);
-        oled_write_ln(str, false);
-    } else {
-        // Add custom mods code here, this is for now broken
-        render_empty_line();
-        render_modifiers_status();
-    }
 }
 
 bool is_oneshot_cancel_key(uint16_t keycode) {
@@ -207,13 +150,11 @@ bool terminate_case_modes(uint16_t keycode, const keyrecord_t *record) {
         case SNAKE:
             // If mod chording disable the mods
             if (record->event.pressed && (get_mods() != 0)) {
-                delimiter = KC_NO;
                 return true;
             }
             break;
         default:
             if (record->event.pressed) {
-                delimiter = KC_NO;
                 return true;
             }
             break;
@@ -270,33 +211,25 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         case SNAKE:
         case CAMEL:
             if (record->event.pressed) {
-                if (delimiter != KC_NO) {
+                if (get_xcase_delimiter() != KC_NO) {
                     disable_xcase();
-                    delimiter = KC_NO;
                 } else {
-                    delimiter = keycode == SNAKE ? KC_UNDS : OSM(MOD_LSFT);
-                    enable_xcase_with(delimiter);
+                    enable_xcase_with(keycode == SNAKE ? KC_UNDS : OSM(MOD_LSFT));
                 }
             }
             break;
         case SNK_SCM:
             if (record->event.pressed) {
-                if (delimiter != KC_NO) {
+                if (get_xcase_delimiter() != KC_NO) {
                     disable_xcase();
                     disable_caps_word();
-                    delimiter = KC_NO;
                 } else {
-                    delimiter = KC_UNDS;
                     enable_caps_word();
-                    enable_xcase_with(delimiter);
+                    enable_xcase_with(KC_UNDS);
                 }
             }
             break;
     }
     return true;
-}
-
-void suspend_power_down_user(void) {
-    oled_off();
 }
 

@@ -70,6 +70,11 @@ void toggle_caps_word(void) {
     }
 }
 
+// Get xcase delimiter, KC_NO if OFF
+uint16_t get_xcase_delimiter(void) {
+    return xcase_state == XCASE_ON ? xcase_delimiter : KC_NO;
+}
+
 // Get xcase state
 enum xcase_state get_xcase_state(void) {
     return xcase_state;

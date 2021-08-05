@@ -18,6 +18,8 @@ enum xcase_state {
     XCASE_WAIT,     // xcase is waiting for the delimiter input
 };
 
+// Get current delimiter, defaults to KC_NO when off
+uint16_t get_xcase_delimiter(void);
 // Get xcase state
 enum xcase_state get_xcase_state(void);
 // Enable xcase and pickup the next keystroke as the delimiter

@@ -35,7 +35,3 @@ enum custom_keycodes {
     SE_AE,
     SE_OE
 };
-
-bool caps_word_on;
-void caps_word_enable(void);
-void caps_word_disable(void);
