@@ -6,6 +6,7 @@
 #include "swapper.h"
 #include "oled.h"
 #include "features/casemodes.h"
+#include "features/repeat.h"
 
 bool sw_win_active = false;
 oneshot_state os_shft_state = os_up_unqueued;
@@ -20,6 +21,7 @@ static uint16_t non_combo_input_timer = 0;
 // TODO can I solve the issues with CMD (SFT) + N by having OSM CMD and SFT on SPC and ENT
 // TODO would it be nice to move enter to a layer or combo and use ENT as OS SFT instead of having to press it
 //      perhaps a follow up to the above could be to toggle CAPS Word if pressing the ENT OSM twice
+// TODO when adding a number layer, make dubble tapping it toggle NUMWORD
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
 
     [_QWERTY] = LAYOUT( \
@@ -27,7 +29,7 @@ const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
         KC_TAB,  KC_Q,    KC_W,    KC_E,    KC_R,    KC_T,                       KC_Y,    KC_U,    KC_I,    KC_O,    KC_P,    KC_GRV,  \
         CTL_ESC, KC_A,    KC_S,    KC_D,    KC_F,    KC_G,                       KC_H,    KC_J,    KC_K,    KC_L,    KC_SCLN, KC_QUOT, \
         KC_LSFT, KC_Z,    KC_X,    KC_C,    KC_V,    KC_B,    KC_LBRC,  KC_RBRC, KC_N,    KC_M,    KC_COMM, KC_DOT,  KC_SLSH, KC_MINS, \
-                                   XXXXXXX, XXXXXXX, LOWER,   KC_SPC,   ENT_SFT, RAISE,   XXXXXXX, XXXXXXX \
+                                   XXXXXXX, XXXXXXX, LOWER,   KC_SPC,   ENT_SFT, RAISE,   REPEAT,  XXXXXXX \
         ),
 
     // Mnemonic for Alfred and iTerm is T for Terminal and G for Goto. N is for Newline
@@ -172,12 +174,19 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
         append_keylog(keycode);
     }
 
+    if (record->event.pressed && keycode != REPEAT) {
+        register_key_to_repeat(keycode);
+    }
+
     switch (keycode) {
+        case REPEAT:
+            update_repeat_key(record);
+            return false;
         case SE_AO:
             if (record->event.pressed) {
                 tap_code16(A(KC_A));
             }
-            break;
+            return false;
         case SE_AE:
         case SE_OE:
             if (record->event.pressed) {
@@ -189,16 +198,12 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                 set_mods(mod_state);
                 tap_code16(keycode == SE_AE ? KC_A : KC_O);
             }
-            break;
+            return false;
         case CAPS:
             if (record->event.pressed) {
-                // TODO
-                // - I could add a timer and check for long press to turn it on perment
-                // - When adding a number layer, make dubble tapping it toggle NUMWORD
-                // - Fix the combo term to avoid misfires
                 toggle_caps_word();
             }
-            break;
+            return false;
         case SNAKE:
         case CAMEL:
             if (record->event.pressed) {
@@ -208,7 +213,7 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     enable_xcase_with(keycode == SNAKE ? KC_UNDS : OSM(MOD_LSFT));
                 }
             }
-            break;
+            return false;
         case SNK_SCM:
             if (record->event.pressed) {
                 if (get_xcase_delimiter() != KC_NO) {
@@ -219,8 +224,9 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
                     enable_xcase_with(KC_UNDS);
                 }
             }
-            break;
+            return false;
     }
+
     return true;
 }
 

@@ -33,6 +33,7 @@ VPATH  +=  keyboards/gboards/
 SRC +=  ./oneshot.c \
         ./swapper.c \
         ./features/casemodes.c \
+        ./features/repeat.c \
         ./oled.c \
 				# ./lib/rgb_state_reader.c \
         # ./lib/logo_reader.c \

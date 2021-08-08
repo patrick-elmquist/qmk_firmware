@@ -43,4 +43,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef OLED_FONT_H
     #undef OLED_FONT_H
 #endif
-#define OLED_FONT_H "keyboards/lily58/keymaps/pket/glcdfont_new.c"
+#define OLED_FONT_H "keyboards/lily58/keymaps/pket/glcdfont.c"

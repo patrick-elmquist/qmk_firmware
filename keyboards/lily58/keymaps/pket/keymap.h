@@ -26,6 +26,8 @@ enum custom_keycodes {
     OS_LSFT,
 
     SW_WIN,
+    REPEAT,
+
     CAPS,
     CAMEL,
     SNAKE,
