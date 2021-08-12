@@ -27,6 +27,7 @@ enum custom_keycodes {
 
     SW_WIN,
     REPEAT,
+    QUOTES,
 
     CAPS,
     CAMEL,
