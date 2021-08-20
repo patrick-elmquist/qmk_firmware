@@ -1,6 +1,7 @@
 #pragma once
 
 #include QMK_KEYBOARD_H
+#include "pket.h"
 
 #define LOWER MO(_LOWER)
 #define RAISE MO(_RAISE)
@@ -12,29 +13,3 @@
 #define __RAS__ _______
 #define ENT_SFT RSFT_T(KC_ENT)
 
-enum layer_number {
-    _QWERTY = 0,
-    _LOWER,
-    _RAISE,
-    _ADJUST
-};
-
-enum custom_keycodes {
-    OS_LCTL = SAFE_RANGE,
-    OS_LALT,
-    OS_LGUI,
-    OS_LSFT,
-
-    SW_WIN,
-    REPEAT,
-    QUOTES,
-
-    CAPS,
-    CAMEL,
-    SNAKE,
-    SNK_SCM,
-
-    SE_AO,
-    SE_AE,
-    SE_OE
-};

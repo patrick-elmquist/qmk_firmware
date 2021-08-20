@@ -24,22 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SPLIT_MODS_ENABLE
 
-#define TAPPING_TERM 200
-#define TAPPING_FORCE_HOLD
-// according to a discussion on discord, TAPPING_TERM_HOLD seems to be the reason
-// for tap toggle not working properly when I tried it...
-
-#define COMBO_TERM 35
-#define COMBO_TERM_PER_COMBO
-
-// #define COMBO_ONLY_FROM_LAYER 0
-
-// #define COMBO_ALLOW_ACTION_KEYS
-// #define COMBO_VARIABLE_LEN
-
-// Should reduce the total firmware footprint according to some blog post
-#define DISABLE_LEADER
-
 #ifdef OLED_FONT_H
     #undef OLED_FONT_H
 #endif

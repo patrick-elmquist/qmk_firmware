@@ -2,11 +2,11 @@
 
 #include "keymap.h"
 #include "g/keymap_combo.h"
-#include "oneshot.h"
-#include "swapper.h"
-#include "oled.h"
-#include "features/casemodes.h"
-#include "features/repeat.h"
+// #include "oneshot.h"
+// #include "swapper.h"
+// #include "oled.h"
+// #include "features/casemodes.h"
+// #include "features/repeat.h"
 
 bool sw_win_active = false;
 oneshot_state os_shft_state = os_up_unqueued;
@@ -233,5 +233,33 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
     }
 
     return true;
+}
+
+void oled_task_user(void) {
+    if (is_keyboard_master()) {
+        render_empty_line();
+        render_default_layer_state();
+        render_empty_line();
+        render_case_mode_status(get_xcase_delimiter(), caps_word_enabled());
+        render_empty_line();
+        render_keylogger_status();
+        render_empty_line();
+        render_combo_status();
+    } else {
+        render_empty_line();
+        render_modifier_status();
+    }
+}
+
+oled_rotation_t oled_init_user(oled_rotation_t rotation) {
+    if (is_keyboard_master()) {
+        return OLED_ROTATION_270;
+    } else {
+        return OLED_ROTATION_180;
+    }
+}
+
+void suspend_power_down_user(void) {
+    oled_off();
 }
 
