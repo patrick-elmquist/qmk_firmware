@@ -21,6 +21,8 @@ void render_mod_alt(uint8_t order, uint8_t mods);
 
 void render_mod_ctrl(uint8_t order, uint8_t mods);
 
+void render_mod_status_short(void);
+
 void render_modifier_status(void);
 
 void render_combo_status(void);

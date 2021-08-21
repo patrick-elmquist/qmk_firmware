@@ -67,6 +67,9 @@ void render_default_layer_state(void) {
         case _RAISE:
             oled_write_P(PSTR("RAI"), false);
             break;
+        case _SYSTEM:
+            oled_write_P(PSTR("SYS"), false);
+            break;
         case _ADJUST:
             oled_write_P(PSTR("ADJ"), false);
             break;
@@ -121,6 +124,16 @@ void render_mod_ctrl(uint8_t order, uint8_t mods) {
         0xCC, 0xCD, ' ', ' '
     };
     render_mod_icon(order, mods & MOD_MASK_CTRL, ctrl_icon, false);
+}
+
+void render_mod_status_short(void) {
+    uint8_t modifiers = get_mods();
+    oled_write_P(PSTR(" Mods:  "), false);
+    oled_write_P(PSTR("C"), (modifiers & MOD_MASK_CTRL));
+    oled_write_P(PSTR("A"), (modifiers & MOD_MASK_ALT));
+    oled_write_P(PSTR("G"), (modifiers & MOD_MASK_GUI));
+    oled_write_P(PSTR("S"), (modifiers & MOD_MASK_SHIFT));
+    oled_write_ln_P(PSTR(""), false);
 }
 
 void render_modifier_status(void) {

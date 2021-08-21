@@ -2,11 +2,6 @@
 
 #include "keymap.h"
 #include "g/keymap_combo.h"
-// #include "oneshot.h"
-// #include "swapper.h"
-// #include "oled.h"
-// #include "features/casemodes.h"
-// #include "features/repeat.h"
 
 bool sw_win_active = false;
 oneshot_state os_shft_state = os_up_unqueued;
