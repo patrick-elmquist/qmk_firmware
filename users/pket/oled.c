@@ -1,12 +1,14 @@
 #include <stdio.h>
 #include "oled.h"
-#include "keymap.h"
 #include "features/casemodes.h"
 
+// Should perhaps check if these are already defined
 #define BLINK_TIMEOUT 10000
 #define BLINK_INTERVAL 500
 
+// ... same for this one!
 #define KEYLOG_LEN 6
+
 #define MOD_ICON_WIDTH 4
 #define MOD_ICON_HEIGHT 3
 
@@ -28,28 +30,39 @@ void render_empty_line(void) {
 }
 
 void render_case_mode_status(uint16_t delimiter, bool caps) {
-    oled_write_ln_P(PSTR("Case"), false);
+    bool brief = true;
+#ifdef OLED_DISPLAY_128X64
+    brief = false;
+    oled_write_P(PSTR(" XCase: "), false);
+#else
+    oled_write_ln_P(PSTR("XCase"), false);
+#endif
     if (delimiter == KC_UNDS) {
         if (caps) {
-            oled_write_P(PSTR("SNAKE"), false);
+            oled_write_ln_P(brief ? PSTR("SNAKE") : PSTR("SNAKE_SCREM"), false);
         } else {
-            oled_write_P(PSTR("snake"), false);
+            oled_write_ln_P(brief ? PSTR("snake") : PSTR("snake_case"), false);
         }
     } else if (delimiter == OSM(MOD_LSFT)) {
-        oled_write_P(PSTR("cAmEl"), false);
+        oled_write_ln_P(brief ? PSTR("caMel") : PSTR("camelCase"), false);
     } else if (caps) {
-        oled_write_P(PSTR("UPPER"), false);
+        oled_write_ln_P(brief ? PSTR("UPPER") : PSTR("UPPERCASE"), false);
     } else {
-        oled_write_P(PSTR("lower"), false);
+        oled_write_ln_P(brief ? PSTR("lower") : PSTR("lowercase"), false);
     }
 }
 
 void render_keylogger_status(void) {
-    oled_write_P(PSTR("Hist."), false);
+#ifdef OLED_DISPLAY_128X64
+    oled_write_P(PSTR(" Hist:  "), false);
+#else
+    oled_write_ln_P(PSTR("Hist."), false);
+#endif
     oled_write(keylog_str, false);
 }
 
 void render_default_layer_state(void) {
+    // TODO enable oneline support
     if (timer_elapsed(log_timer) > BLINK_TIMEOUT) {
         blink_timeout = true;
     }
@@ -146,7 +159,11 @@ void render_modifier_status(void) {
 }
 
 void render_combo_status(void) {
-    oled_write_P(PSTR("Combo"), false);
+#ifdef OLED_DISPLAY_128X64
+    oled_write_P(PSTR(" Combo: "), false);
+#else
+    oled_write_ln_P(PSTR("Combo"), false);
+#endif
     oled_write_ln(combo_str, false);
 }
 
