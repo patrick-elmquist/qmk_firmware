@@ -25,3 +25,9 @@
 	path = lib/lvgl
 	url = https://github.com/qmk/lvgl.git
 	branch = release/v8.2
+[submodule "keyboards/dasbob"]
+	path = keyboards/dasbob
+	url = https://github.com/patrick-elmquist/qmk-config-dasbob.git
+[submodule "keyboards/totem"]
+	path = keyboards/totem
+	url = https://github.com/patrick-elmquist/qmk-config-totem.git
