@@ -28,6 +28,8 @@
 [submodule "keyboards/dasbob"]
 	path = keyboards/dasbob
 	url = https://github.com/patrick-elmquist/qmk-config-dasbob.git
+	branch = main
 [submodule "keyboards/totem"]
 	path = keyboards/totem
 	url = https://github.com/patrick-elmquist/qmk-config-totem.git
+	branch = main
